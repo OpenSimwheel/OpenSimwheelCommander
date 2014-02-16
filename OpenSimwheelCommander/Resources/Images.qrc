@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/splash">
+        <file>OpenSimwheel.png</file>
+    </qresource>
+</RCC>

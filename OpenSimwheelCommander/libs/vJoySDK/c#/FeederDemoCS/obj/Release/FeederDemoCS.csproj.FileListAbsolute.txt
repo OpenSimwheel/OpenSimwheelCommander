@@ -1,0 +1,6 @@
+C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\bin\Release\FeederDemoCS.exe
+C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\bin\Release\FeederDemoCS.pdb
+C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\obj\Release\ResolveAssemblyReference.cache
+C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\obj\Release\FeederDemoCS.exe
+C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\obj\Release\FeederDemoCS.pdb
+C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\bin\Release\vJoyInterfaceWrap.dll
