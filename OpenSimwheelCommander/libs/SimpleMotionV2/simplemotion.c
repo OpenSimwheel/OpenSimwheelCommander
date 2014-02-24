@@ -230,6 +230,7 @@ char *cmdidToStr(smuint8 cmdid )
     switch(cmdid)
     {
     case SMCMD_INSTANT_CMD : str="SMCMD_INSTANT_CMD";break;
+    case SMCMD_FAST_CMD : str="CMCMD_FAST_CMD";break;
     case SMCMD_INSTANT_CMD_RET :str="SMCMD_INSTANT_CMD_RET";break;
     case SMCMD_BUFFERED_CMD :str="SMCMD_BUFFERED_CMD";break;
     case SMCMD_BUFFERED_RETURN_DATA :str="SMCMD_BUFFERED_RETURN_DATA";break;
@@ -457,6 +458,12 @@ SM_STATUS smExecuteCommandQueue( const smbus bushandle, const smaddr targetaddre
     if(smIsHandleOpen(bushandle)==smfalse) return SM_ERR_NODEVICE;
 
     return recordStatus(bushandle,smTransmitReceiveCommandQueue(bushandle,targetaddress,SMCMD_INSTANT_CMD));
+}
+
+SM_STATUS smExecuteFastCommandQueue(const smbus bushandle, const smaddr targetaddress ) {
+    if (smIsHandleOpen(bushandle)==smfalse) return SM_ERR_NODEVICE;
+
+    return recordStatus(bushandle, smTransmitReceiveCommandQueue(bushandle, targetaddress, SMCMD_FAST_CMD));
 }
 
 SM_STATUS smUploadCommandQueueToDeviceBuffer( const smbus bushandle, const smaddr targetaddress )

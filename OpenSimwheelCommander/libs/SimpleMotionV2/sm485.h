@@ -37,6 +37,10 @@
 #define SMCMD_INSTANT_CMD SMCMD_ID(4,SMCMD_MASK_N_PARAMS)
 #define SMCMD_INSTANT_CMD_RET SMCMD_ID(4,SMCMD_MASK_N_PARAMS|SMCMD_MASK_RETURN)
 
+//opensimwheel fast command
+#define SMCMD_FAST_CMD SMCMD_ID(7,SMCMD_MASK_N_PARAMS)
+#define SMCMD_FAST_CMD_RET SMCMD_ID(7,SMCMD_MASK_N_PARAMS|SMCMD_MASK_RETURN)
+
 //format  ID, u8 bytesfollowing,u8 toaddr,cmddata,u16 crc
 //return, ID, u8 bytesfollowing,u8 fromaddr,returndata,u16 crc
 #define SMCMD_BUFFERED_CMD SMCMD_ID(6,SMCMD_MASK_N_PARAMS)

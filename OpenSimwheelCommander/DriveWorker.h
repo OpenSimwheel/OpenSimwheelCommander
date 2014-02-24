@@ -3,9 +3,6 @@
 
 #include <QObject>
 #include <simplemotion.h>
-#include <libs/vJoySDK/src/stdafx.h>
-#include <libs/vJoySDK/inc/public.h>
-#include <libs/vJoySDK/inc/vjoyinterface.h>
 
 #include <libs/irsdk/yaml_parser.h>
 #include <libs/irsdk/irsdk_defines.h>
@@ -14,27 +11,33 @@
 #include <ForceFeedbackProcessor.h>
 #include <TelemetryWorker.h>
 
+#include <SimpleMotionCommunicator.h>
+
+#include <JoystickManager.h>
+
 class DriveWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit DriveWorker(WHEEL_PARAMETER* wheel_parameter, TELEMETRY_FEEDBACK *telemetryFeedback, QObject *parent = 0);
+    explicit DriveWorker(WHEEL_PARAMETER* WheelParameter, TELEMETRY_FEEDBACK *telemetryFeedback, QObject *parent = 0);
     ~DriveWorker();
-    smint32 deviceAddress;
-    smbus busHandle;
 
+    WHEEL_PARAMETER* WheelParameter;
+    TELEMETRY_FEEDBACK* TelemetryFeedback;
 
-    WHEEL_PARAMETER* wheel_parameter;
-    TELEMETRY_FEEDBACK* telemetry_feedback;
+    JoystickManager* Joystick;
+
+    void UpdateWheelParamter();
+
 
 private:
-    VjdStat vjoy_device_status;
+
 
     smint32 pos = 0;
 
     FFBWheel ffbwheel;
+    SimpleMotionCommunicator* SmCommunicator;
 
-    void initSmLowLevel();
 
     double PCFreq = 0.0;
     __int64 CounterStart = 0;
@@ -44,12 +47,23 @@ private:
 
     smint32 findHome();
 
+    void UpdateWheelParameter();
+
+    bool WheelParameterEqual(WHEEL_PARAMETER& me, WHEEL_PARAMETER& other)
+    {
+        return me.DampingStrength == other.DampingStrength &&
+               me.DampingEnabled == other.DampingEnabled &&
+                me.CenterSpringStrength == other.CenterSpringStrength &&
+                me.CenterSpringEnabled == other.CenterSpringEnabled &&
+                me.OverallStrength == other.OverallStrength &&
+                me.DegreesOfRotation == other.DegreesOfRotation;
+    }
 signals:
     void initializing();
     void initialized();
     void feedback_received(FEEDBACK_DATA feedback_data);
     void homing_completed(qint32 center);
-    void telemetry_updated(TELEMETRY_FEEDBACK telemetry_feedback);
+    void telemetry_updated(TELEMETRY_FEEDBACK TelemetryFeedback);
 public slots:
     void process();
     void shutdown();

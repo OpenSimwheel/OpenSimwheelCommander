@@ -12,21 +12,10 @@ class FFBWheel : public QObject
 public:
     explicit FFBWheel(QObject *parent = 0);
 
-    QVector<VELOCITY_SAMPLE> velocitySamplesStack;
-    const int velocityNumSamples = 1;
-
-    qint32 getDamperTorque(double b, double velocity);
-    qint32 getSpringTorque(double k, qint32 x, double b, double velocity, qint32 offset);
-
-    WHEEL_STATE process(WHEEL_PARAMETER wheel_parameter, qint32 pos, qint64 dt, WHEEL_STATE lastState, TELEMETRY_FEEDBACK telemetry_feedback);
+    qint32 calculateTorque(TELEMETRY_FEEDBACK telemetry_feedback);
 
 private:
     WHEEL_PARAMETER* wheel_parameter;
-
-
-
-
-
 
 signals:
 

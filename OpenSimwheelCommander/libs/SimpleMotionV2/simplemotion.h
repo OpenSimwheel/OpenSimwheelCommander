@@ -111,6 +111,8 @@ LIB void resetCumulativeStatus( const smbus handle );
 /** SMV2 Device communication functionss */
 LIB SM_STATUS smAppendCommandToQueue( smbus handle, smuint8 cmdid, smuint16 param  );
 LIB SM_STATUS smExecuteCommandQueue( const smbus bushandle, const smaddr targetaddress );
+LIB SM_STATUS smExecuteFastCommandQueue( const smbus bushandle, const smaddr targetaddress );
+
 LIB smuint16  smGetQueuedCommandReturnValue(  const smbus bushandle, smuint16 cmdnumber );
 
 LIB SM_STATUS smUploadCommandQueueToDeviceBuffer( const smbus bushandle, const smaddr targetaddress );

@@ -34,7 +34,9 @@ SOURCES += main.cpp\
     Dialogs/DriveStageConfigDialog.cpp \
     Dialogs/WheelSettingsDialog.cpp \
     Dialogs/JoystickConfigurationDialog.cpp \
-    Splash/IndestructableSplashScreen.cpp
+    Splash/IndestructableSplashScreen.cpp \
+    SimpleMotionCommunicator.cpp \
+    JoystickManager.cpp
 
 HEADERS  += \
     libs/irsdk/irsdk_defines.h \
@@ -48,7 +50,9 @@ HEADERS  += \
     Dialogs/WheelSettingsDialog.h \
     Version.h \
     Dialogs/JoystickConfigurationDialog.h \
-    Splash/IndestructableSplashScreen.h
+    Splash/IndestructableSplashScreen.h \
+    SimpleMotionCommunicator.h \
+    JoystickManager.h
 
 FORMS    += \
     MainWindow.ui \

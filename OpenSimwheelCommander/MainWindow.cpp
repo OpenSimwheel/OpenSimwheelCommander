@@ -21,22 +21,24 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     MainWindow::hide();
 
-
+    count = 0;
 
     ApplicationSettings = new QSettings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName());
 
+
     telemetry_feedback = TELEMETRY_FEEDBACK();
-    count = 0;
+
     WheelParameter = WHEEL_PARAMETER();
     WheelParameter.CenterSpringStrength = ApplicationSettings->value("WheelEffects/CenterSpringStrength").toInt();
     WheelParameter.DegreesOfRotation = ApplicationSettings->value("WheelParameter/DegreesOfRotation").toInt();
     WheelParameter.OverallStrength = ApplicationSettings->value("WheelEffects/OverallStrength").toInt();
     WheelParameter.DampingStrength = ApplicationSettings->value("WheelEffects/DampingStrength").toInt();
     WheelParameter.CenterOffset = ApplicationSettings->value("WheelParameter/CenterOffset").toInt();
-    WheelParameter.DampingEnabled = ApplicationSettings->value("WheelParameter/DampingEnabled").toBool();
-    WheelParameter.CenterSpringEnabled = ApplicationSettings->value("WheelParameter/CenterSpringEnabled").toBool();
+    WheelParameter.DampingEnabled = ApplicationSettings->value("WheelEffects/DampingEnabled").toBool();
+    WheelParameter.CenterSpringEnabled = ApplicationSettings->value("WheelEffects/CenterSpringEnabled").toBool();
     WheelParameter.CenterOffsetEnabled = ApplicationSettings->value("WheelParameter/CenterOffsetEnabled").toBool();
-
+    WheelParameter.ComPort = ApplicationSettings->value("DriveStage/ComPort").toString().toStdString().c_str();
+    WheelParameter.DeviceAddress = ApplicationSettings->value("DriveStage/DeviceAddress").toInt();
 
     driveWorker = new DriveWorker(&WheelParameter, &telemetry_feedback);
     driveThread = new QThread;
@@ -48,6 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(driveThread, SIGNAL(finished()), driveThread, SLOT(deleteLater()));
     connect(driveWorker, SIGNAL(initializing()), this, SLOT(onWheelInitializing()));
     connect(driveWorker, SIGNAL(initialized()), this, SLOT(onWheelInitialized()));
+    connect(driveWorker->Joystick, SIGNAL(Initialized(JoystickDriverInfo,JoystickDeviceInfo)), this, SLOT(onJoystickInitialized(JoystickDriverInfo,JoystickDeviceInfo)));
+    connect(driveWorker->Joystick, SIGNAL(PositionUpdated(qint32)), this, SLOT(onJoystickPositionUpdated(qint32)));
     driveThread->start(QThread::TimeCriticalPriority);
 
 
@@ -64,6 +68,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menu_View->addAction(ui->debugInformation_dockWidget->toggleViewAction());
     ui->menu_View->addAction(ui->telemetryOutput_dockWidget->toggleViewAction());
     ui->menu_View->addAction(ui->vjoy_dockWidget->toggleViewAction());
+
+
 }
 
 void MainWindow::updateTelemetryFeedbackInfo(TELEMETRY_FEEDBACK feedback)
@@ -86,7 +92,7 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
         max = min;
         sum = data.calculationBenchmark;
 
-        if (data.lastLoopBenchmark > 4100)
+        if (data.lastLoopBenchmark > 5100)
             countAboveTarget++;
     } else {
         if (data.calculationBenchmark < min)
@@ -99,19 +105,16 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
         avg = sum / count;
     }
 
-    if (data.lastLoopBenchmark > 4100)
+    if (data.lastLoopBenchmark > 5100)
         countAboveTarget++;
 
     ui->lbl_position->setText(QString::number(data.position));
     ui->lbl_torque->setText(QString::number(data.torque));
-    ui->lbl_velocity->setText(QString::number(data.velocity, 'f', 6));
     ui->lbl_calculation_benchmark->setText(QString::number(data.calculationBenchmark / 1000.0d, 'f', 2) + " ms");
     ui->lbl_lastLoopTime->setText(QString::number(data.lastLoopBenchmark / 1000.0d, 'f', 2) + " ms");
     ui->lbl_calc_avg->setText(QString::number(avg / 1000.0d, 'f', 2) + " ms / " + QString::number(count));
     ui->lbl_calc_min->setText(QString::number(min / 1000.0d, 'f', 2) + " ms");
     ui->lbl_calc_max->setText(QString::number(max / 1000.0d, 'f', 2) + " ms");
-
-    ui->lbl_wheel_position->setText(QString::number(data.calculatedPosition));
 
     if (data.lastLoopBenchmark == 0)
         ui->statusBar->showMessage("Loop Frequency: >1000Hz");
@@ -134,6 +137,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_Quit_triggered()
 {
+    this->close();
     QApplication::quit();
 }
 
@@ -183,7 +187,8 @@ void MainWindow::onWheelInitializing()
 void MainWindow::onWheelInitialized()
 {
     this->setEnabled(true);
-//    splash->close();
+    RestoreLayout();
+    this->splash->close();
     this->show();
 }
 
@@ -195,4 +200,39 @@ void MainWindow::setSplashScreen(IndestructableSplashScreen* splash)
 void MainWindow::on_action_Restart_triggered()
 {
     QApplication::instance()->exit(1000);
+}
+
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    SaveLayout();
+}
+
+void MainWindow::SaveLayout()
+{
+    ApplicationSettings->setValue("Window/Geometry", saveGeometry());
+    ApplicationSettings->setValue("Window/State", saveState());
+    ApplicationSettings->sync();
+}
+
+void MainWindow::RestoreLayout()
+{
+    restoreGeometry(ApplicationSettings->value("Window/Geometry").toByteArray());
+    restoreState(ApplicationSettings->value("Window/State").toByteArray());
+}
+
+
+void MainWindow::onJoystickInitialized(JoystickDriverInfo driverInfo, JoystickDeviceInfo deviceInfo) {
+
+    ui->lbl_vjoy_enabled->setText(driverInfo.Enabled ? "true" : "false");
+    ui->lbl_vjoy_vendor->setText(driverInfo.Vendor);
+    ui->lbl_vjoy_product->setText(driverInfo.Product);
+    ui->lbl_vjoy_version->setText(driverInfo.VersionNumber);
+
+    ui->lbl_vjoy_axis_min->setText(QString::number(deviceInfo.AxisMin));
+    ui->lbl_vjoy_axis_max->setText(QString::number(deviceInfo.AxisMax));
+    ui->lbl_vjoy_device_id->setText(QString::number(deviceInfo.Id));
+}
+
+void MainWindow::onJoystickPositionUpdated(qint32 pos) {
+    ui->lbl_vjoy_axis_pos->setText(QString::number(pos));
 }

@@ -19,9 +19,7 @@ Q_DECLARE_METATYPE(TELEMETRY_FEEDBACK)
 typedef struct
 {
     smint32 position;
-    qint32 calculatedPosition;
     smint32 torque;
-    float velocity;
     qint64 calculationBenchmark;
     qint64 lastLoopBenchmark;
     smint32 debug1;
@@ -37,15 +35,6 @@ typedef struct
 
 Q_DECLARE_METATYPE(CALCULATION_RESULT)
 
-
-typedef struct {
-    qint32 torque;
-    qint32 position;
-    qint32 raw_position;
-    double velocity;
-} WHEEL_STATE;
-
-Q_DECLARE_METATYPE(WHEEL_STATE)
 
 typedef struct {
     qint32 pos_delta;
@@ -67,6 +56,9 @@ typedef struct
     qint16 DegreesOfRotation; // in degrees
     bool CenterOffsetEnabled;
     qint32 CenterOffset;
+
+    const char* ComPort;
+    qint32 DeviceAddress;
 } WHEEL_PARAMETER;
 
 Q_DECLARE_METATYPE(WHEEL_PARAMETER)

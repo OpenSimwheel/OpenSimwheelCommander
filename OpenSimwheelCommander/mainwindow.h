@@ -10,6 +10,7 @@
 #include <QCoreApplication>
 #include <QProgressDialog>
 #include <Splash/IndestructableSplashScreen.h>
+#include <JoystickManager.h>
 
 namespace Ui {
 class MainWindow;
@@ -34,6 +35,11 @@ public slots:
     void onWheelInitializing();
     void onWheelInitialized();
     void setSplashScreen(IndestructableSplashScreen* splash);
+
+    void onJoystickInitialized(JoystickDriverInfo driverInfo, JoystickDeviceInfo deviceInfo);
+    void onJoystickPositionUpdated(qint32 pos);
+protected:
+    void closeEvent(QCloseEvent *);
 
 private slots:
     void on_action_Quit_triggered();
@@ -66,6 +72,8 @@ private:
     DriveWorker* driveWorker;
     QThread* driveThread;
 
+    void SaveLayout();
+    void RestoreLayout();
 
     IndestructableSplashScreen *splash;
 signals:

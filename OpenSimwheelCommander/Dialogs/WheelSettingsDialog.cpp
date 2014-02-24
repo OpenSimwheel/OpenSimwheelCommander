@@ -53,15 +53,18 @@ void WheelSettingsDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void WheelSettingsDialog::InitializeValuesFromSettings()
 {
-    ui->effects_centerspring_spinbox->setValue(Settings->value("WheelEffects/CenterSpringStrength").toInt());
-    ui->effects_damper_spinBox->setValue(Settings->value("WheelEffects/DampingStrength").toInt());
-    ui->effects_overall_spinBox->setValue(Settings->value("WheelEffects/OverallStrength").toInt());
-    ui->effects_damper_groupbox->setChecked(Settings->value("WheelEffects/DampingEnabled").toBool());
-    ui->effects_centerspring_groupbox->setChecked(Settings->value("WheelEffects/CenterSpringEnabled").toBool());
+    ui->effects_centerspring_groupbox->setChecked(WheelParameter->CenterSpringEnabled);
+        ui->effects_centerspring_spinbox->setValue(WheelParameter->CenterSpringStrength);
 
-    ui->wheel_degreesOfRotation_spinBox->setValue(Settings->value("WheelParameter/DegreesOfRotation").toInt());
-    ui->wheel_center_offset_spinbox->setValue(Settings->value("WheelParameter/CenterOffset").toInt());
-    ui->wheel_center_offset_groupbox->setChecked(Settings->value("WheelParameter/CenterOffsetEnabled").toBool());
+    ui->effects_damper_groupbox->setChecked(WheelParameter->DampingEnabled);
+        ui->effects_damper_spinBox->setValue(WheelParameter->DampingStrength);
+
+    ui->effects_overall_spinBox->setValue(WheelParameter->OverallStrength);
+
+    ui->wheel_center_offset_groupbox->setChecked(WheelParameter->CenterOffsetEnabled);
+        ui->wheel_center_offset_spinbox->setValue(WheelParameter->CenterOffset);
+
+    ui->wheel_degreesOfRotation_spinBox->setValue(WheelParameter->DegreesOfRotation);
 }
 
 void WheelSettingsDialog::SaveSettings()
@@ -78,17 +81,22 @@ void WheelSettingsDialog::SaveSettings()
 
     Settings->sync();
 
-    WheelParameter->CenterSpringStrength = ui->effects_centerspring_spinbox->value();
+    WheelParameter->CenterSpringStrength = ui->effects_centerspring_slider->value();
     WheelParameter->DegreesOfRotation = ui->wheel_degreesOfRotation_spinBox->value();
     WheelParameter->DampingStrength = ui->effects_damper_spinBox->value();
     WheelParameter->OverallStrength = ui->effects_overall_spinBox->value();
+
+    WheelParameter->CenterOffsetEnabled = ui->wheel_center_offset_groupbox->isChecked();
+    WheelParameter->CenterSpringEnabled = ui->effects_centerspring_groupbox->isChecked();
+    WheelParameter->DampingEnabled = ui->effects_damper_groupbox->isChecked();
+
 }
 
 void WheelSettingsDialog::RestoreDefaults()
 {
     ui->effects_centerspring_spinbox->setValue(0);
-    ui->effects_damper_spinBox->setValue(100);
-    ui->effects_overall_spinBox->setValue(100);
+    ui->effects_damper_spinBox->setValue(50);
+    ui->effects_overall_spinBox->setValue(30);
     ui->effects_damper_groupbox->setChecked(true);
     ui->effects_centerspring_groupbox->setChecked(false);
 
