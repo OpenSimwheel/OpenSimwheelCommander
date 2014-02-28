@@ -46,6 +46,8 @@ SM_STATUS SimpleMotionCommunicator::ExecuteFastCommandQueue() {
     return smExecuteFastCommandQueue(busHandle, deviceAddress);
 }
 
+
+
 SM_STATUS SimpleMotionCommunicator::GetQueuedReturnValue(smint32 *retValue) {
     return smGetQueuedSMCommandReturnValue(busHandle, retValue);
 }

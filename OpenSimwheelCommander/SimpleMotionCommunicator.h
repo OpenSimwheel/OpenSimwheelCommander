@@ -56,6 +56,16 @@ public:
     void EnableDrive();
     void DisableDrive();
 
+    //blocking call
+    void WaitForDriveReady() {
+        smint32 status;
+        this->GetParameter(SMP_STATUS, &status);
+
+        while (bool(status & STAT_INITIALIZED) == false) {
+            this->GetParameter(SMP_STATUS, &status);
+        }
+    }
+
     void LoadSettings(WheelSettings settings);
 
     SM_STATUS SwitchControlMode(smint32 controlMode);
