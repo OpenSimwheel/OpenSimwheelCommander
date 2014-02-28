@@ -12,6 +12,12 @@
 #include <Splash/IndestructableSplashScreen.h>
 #include <JoystickManager.h>
 
+#ifdef USE_FAST_COMMAND
+    #define MAX_LATENCY 2100
+#else
+    #define MAX_LATENCY 4100
+#endif
+
 namespace Ui {
 class MainWindow;
 }

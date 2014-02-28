@@ -15,6 +15,8 @@
 
 #include <JoystickManager.h>
 
+#define USE_FAST_COMMAND
+
 class DriveWorker : public QObject
 {
     Q_OBJECT

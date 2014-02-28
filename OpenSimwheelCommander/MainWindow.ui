@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>OpenSimwheel Commander</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="Resources/Images.qrc">
+    <normaloff>:/logo/logo-glyph-48x48-transparent.ico</normaloff>:/logo/logo-glyph-48x48-transparent.ico</iconset>
+  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -734,9 +738,14 @@
    <property name="text">
     <string>&amp;Restart</string>
    </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="Resources/Images.qrc"/>
+ </resources>
  <connections/>
 </ui>

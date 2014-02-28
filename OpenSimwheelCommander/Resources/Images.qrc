@@ -1,5 +1,9 @@
 <RCC>
     <qresource prefix="/splash">
-        <file>OpenSimwheel.png</file>
+        <file>logo-full-light.png</file>
+        <file>splash.png</file>
+    </qresource>
+    <qresource prefix="/logo">
+        <file>logo-glyph-48x48-transparent.ico</file>
     </qresource>
 </RCC>

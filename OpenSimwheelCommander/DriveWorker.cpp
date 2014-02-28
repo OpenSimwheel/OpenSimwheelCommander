@@ -48,10 +48,19 @@ void DriveWorker::process()
         return;
 
     SmCommunicator->Connect(WheelParameter->ComPort, WheelParameter->DeviceAddress);
+
+    //waiting for drive to finish initialization
+    SmCommunicator->WaitForDriveReady();
+
     SmCommunicator->EnableDrive();
 
-    const qint64 LOOP_TIMEOUT = 5000; // In µs
-    const qint64 WAKEUP_RESOLUTION = 1000; // In µs
+#ifdef USE_FAST_COMMAND
+    const qint64 LOOP_TIMEOUT = 2000; // In µs
+#else
+    const qint64 LOOP_TIMEOUT = 4000; // In µs
+#endif
+
+    const qint64 WAKEUP_RESOLUTION = 1100; // In µs
 
     StartCounter();
 
@@ -107,15 +116,24 @@ void DriveWorker::process()
 
        qint32 torque = ffbwheel.calculateTorque(telemetryFeedback);
 
+       qint64 stamp1 = GetCounter();
+
 // communication BEGIN
        SmCommunicator->AppendCommandToQueue(SMPCMD_24B, torque);
+#ifdef USE_FAST_COMMAND
        SmCommunicator->ExecuteFastCommandQueue();
+#else
+       SmCommunicator->ExecuteCommandQueue();
+#endif
        SmCommunicator->GetQueuedReturnValue(&pos);
+
+//       SmCommunicator->ExperimentalFastGetPosition(&pos);
+
 // communication END
 
        qint64 stamp2 = GetCounter();
 
-       feedback.calculationBenchmark = stamp2 - frameStartCounter;
+       feedback.calculationBenchmark = stamp2 - stamp1;
        feedback.torque = torque;
        feedback.position = pos;
        feedback.lastLoopBenchmark = lastLoop;

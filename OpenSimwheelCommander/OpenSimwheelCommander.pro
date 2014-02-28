@@ -72,3 +72,9 @@ win32 {
 
 RESOURCES += \
     Resources/Images.qrc
+
+OTHER_FILES += \
+    Resources/OpenSimwheelCommander.ico \
+    OpenSimwheelCommander.rc
+
+RC_FILE = OpenSimwheelCommander.rc

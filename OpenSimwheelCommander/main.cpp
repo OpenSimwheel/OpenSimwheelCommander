@@ -22,12 +22,12 @@ int main(int argc, char *argv[])
         QCoreApplication::setOrganizationDomain("opensimwheel.net");
         QCoreApplication::setApplicationName("OpenSimwheel Commander");
 
-        QPixmap splashImg(":/splash/OpenSimwheel.png");
+        QPixmap splashImg(":/splash/splash.png");
         IndestructableSplashScreen *splash = new IndestructableSplashScreen(splashImg);
 
         splash->show();
 
-        splash->showMessage("Starting OpenSimwheel Commander...", Qt::AlignBottom);
+        splash->showMessage("Starting OpenSimwheel Commander...", Qt::AlignRight | Qt::AlignBaseline);
 
 
         mainWindow = new MainWindow();

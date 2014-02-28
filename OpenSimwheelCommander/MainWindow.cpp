@@ -92,7 +92,7 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
         max = min;
         sum = data.calculationBenchmark;
 
-        if (data.lastLoopBenchmark > 5100)
+        if (data.lastLoopBenchmark > MAX_LATENCY)
             countAboveTarget++;
     } else {
         if (data.calculationBenchmark < min)
@@ -105,7 +105,7 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
         avg = sum / count;
     }
 
-    if (data.lastLoopBenchmark > 5100)
+    if (data.lastLoopBenchmark > MAX_LATENCY)
         countAboveTarget++;
 
     ui->lbl_position->setText(QString::number(data.position));
@@ -181,7 +181,7 @@ void MainWindow::on_action_Joystick_Settings_triggered()
 void MainWindow::onWheelInitializing()
 {
     this->setEnabled(false);
-    splash->showMessage("Initializing Wheel...", Qt::AlignBottom);
+    splash->showMessage("Initializing Wheel...", Qt::AlignBottom | Qt::AlignRight);
 }
 
 void MainWindow::onWheelInitialized()
