@@ -11,6 +11,8 @@
 #include <ForceFeedbackProcessor.h>
 #include <TelemetryWorker.h>
 
+#include <TelemetryPlugins/TelemetryPluginInterface.h>
+
 #include <SimpleMotionCommunicator.h>
 
 #include <JoystickManager.h>
@@ -21,11 +23,11 @@ class DriveWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit DriveWorker(WHEEL_PARAMETER* WheelParameter, TELEMETRY_FEEDBACK *telemetryFeedback, QObject *parent = 0);
+    explicit DriveWorker(WHEEL_PARAMETER* WheelParameter, TelemetryFeedback *telemetryFeedback, QObject *parent = 0);
     ~DriveWorker();
 
     WHEEL_PARAMETER* WheelParameter;
-    TELEMETRY_FEEDBACK* TelemetryFeedback;
+    TelemetryFeedback* TelemetryFeedbackData;
 
     JoystickManager* Joystick;
 
@@ -65,7 +67,7 @@ signals:
     void initialized();
     void feedback_received(FEEDBACK_DATA feedback_data);
     void homing_completed(qint32 center);
-    void telemetry_updated(TELEMETRY_FEEDBACK TelemetryFeedback);
+    void telemetry_updated(TelemetryFeedback TelemetryFeedbackData);
 public slots:
     void process();
     void shutdown();

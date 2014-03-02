@@ -2,7 +2,7 @@
 #define TELEMETRYWORKER_H
 
 #include <QObject>
-#include <CommonStructs.h>
+#include <TelemetryPlugins/TelemetryPluginInterface.h>
 
 class TelemetryWorker : public QObject
 {
@@ -10,20 +10,17 @@ class TelemetryWorker : public QObject
 public:
     explicit TelemetryWorker(QObject *parent = 0);
 
+    void SetPlugin(TelemetryPluginInterface* iTelemetryPlugin) {
+        telemetryPlugin = iTelemetryPlugin;
+    }
 
 private:
-    char *g_data = NULL;
-    int g_nData;
-    int g_timeout;
-    int g_steeringwheel_torque_offset;
-    int g_steeringwheel_angle_offset;
-    int g_steeringwheel_torquepct_offset;
-    int g_steeringwheel_anglemax_offset;
-    int g_steeringwheel_damperpct_offset;
+    TelemetryPluginInterface *telemetryPlugin;
 
-    void irsdk_process();
+
 signals:
-    void telemetry_feedback_received(TELEMETRY_FEEDBACK telemetryFeedback);
+    void telemetry_feedback_received(TelemetryFeedback telemetryFeedback);
+
 public slots:
     void process();
 };

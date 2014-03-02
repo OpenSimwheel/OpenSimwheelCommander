@@ -12,6 +12,9 @@
 #include <Splash/IndestructableSplashScreen.h>
 #include <JoystickManager.h>
 
+#include <QStringList>
+#include <QDir>
+
 #ifdef USE_FAST_COMMAND
     #define MAX_LATENCY 2100
 #else
@@ -35,7 +38,7 @@ public:
 
 public slots:
     void updateFeedbackInfo(FEEDBACK_DATA data);
-    void updateTelemetryFeedbackInfo(TELEMETRY_FEEDBACK feedback);
+    void updateTelemetryFeedbackInfo(TelemetryFeedback feedback);
     void onHomingCompleted(qint32 center);
 
     void onWheelInitializing();
@@ -60,6 +63,8 @@ private slots:
 
     void on_action_Restart_triggered();
 
+    void on_action_Plugins_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -70,7 +75,7 @@ private:
     qint64 sum;
 
     WHEEL_PARAMETER WheelParameter;
-    TELEMETRY_FEEDBACK telemetry_feedback;
+    TelemetryFeedback telemetry_feedback;
 
     QThread* telemetryThread;
     TelemetryWorker* telemetryWorker;
@@ -78,8 +83,13 @@ private:
     DriveWorker* driveWorker;
     QThread* driveThread;
 
+    QStringList pluginFileNames;
+    QDir pluginsDir;
+
     void SaveLayout();
     void RestoreLayout();
+
+    void LoadPlugins();
 
     IndestructableSplashScreen *splash;
 signals:

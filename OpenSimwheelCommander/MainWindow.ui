@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>745</width>
-    <height>569</height>
+    <width>774</width>
+    <height>744</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,7 +20,7 @@
    <string>OpenSimwheel Commander</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="Resources/Images.qrc">
+   <iconset>
     <normaloff>:/logo/logo-glyph-48x48-transparent.ico</normaloff>:/logo/logo-glyph-48x48-transparent.ico</iconset>
   </property>
   <property name="toolButtonStyle">
@@ -42,10 +42,10 @@
    <widget class="QGroupBox" name="groupBox_4">
     <property name="geometry">
      <rect>
-      <x>9</x>
-      <y>9</y>
-      <width>581</width>
-      <height>135</height>
+      <x>20</x>
+      <y>20</y>
+      <width>441</width>
+      <height>111</height>
      </rect>
     </property>
     <property name="title">
@@ -59,23 +59,29 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="comboBox_plugins">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="currentText">
+        <string notr="true"/>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="1">
       <widget class="QGroupBox" name="groupBox_5">
        <property name="title">
         <string>Settings</string>
        </property>
        <layout class="QFormLayout" name="formLayout_5">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
         <item row="0" column="0">
-         <widget class="QCheckBox" name="checkBox">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Activate 1:1 mapping</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
          <widget class="QCheckBox" name="checkBox_2">
           <property name="enabled">
            <bool>false</bool>
@@ -89,64 +95,6 @@
          </widget>
         </item>
        </layout>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QGroupBox" name="groupBox_6">
-       <property name="title">
-        <string>Status</string>
-       </property>
-       <layout class="QFormLayout" name="formLayout_6">
-        <property name="fieldGrowthPolicy">
-         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-        </property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>Status:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="label_16">
-          <property name="text">
-           <string>disconnected</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QComboBox" name="comboBox">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <item>
-        <property name="text">
-         <string>iRacing</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Assetto Corsa</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>rFactor 1</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>rFactor 2</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Richard Burns Rallye</string>
-        </property>
-       </item>
       </widget>
      </item>
     </layout>
@@ -351,9 +299,9 @@
     <property name="geometry">
      <rect>
       <x>490</x>
-      <y>190</y>
+      <y>200</y>
       <width>248</width>
-      <height>162</height>
+      <height>181</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -377,78 +325,92 @@
     <widget class="QWidget" name="dockWidgetContents_6">
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0" colspan="2">
-       <widget class="QGroupBox" name="groupBox_2">
+       <widget class="QGroupBox" name="groupBox_telemetryDebug">
         <property name="title">
          <string>Telemetry</string>
         </property>
         <layout class="QFormLayout" name="formLayout_4">
-         <item row="0" column="0">
+         <item row="1" column="0">
           <widget class="QLabel" name="label_9">
            <property name="text">
             <string>Steering Shaft Torque</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
+         <item row="1" column="1">
           <widget class="QLabel" name="lbl_telemetry_torque">
            <property name="text">
             <string>0</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item row="2" column="0">
           <widget class="QLabel" name="label_10">
            <property name="text">
             <string>TorquePct:</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <widget class="QLabel" name="lbl_telemetry_torquePct">
            <property name="text">
             <string>0</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="3" column="0">
           <widget class="QLabel" name="label_20">
            <property name="text">
             <string>Damping:</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="3" column="1">
           <widget class="QLabel" name="lbl_telemetry_damper">
            <property name="text">
             <string>0</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="label_11">
            <property name="text">
             <string>Angle:</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="QLabel" name="lbl_telemetry_angle">
            <property name="text">
             <string>0</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="label_21">
            <property name="text">
             <string>Car LockToLock:</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <widget class="QLabel" name="lbl_telemetry_lockToLock">
            <property name="text">
             <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>Status:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="lbl_telemetry_status">
+           <property name="text">
+            <string>disconnected</string>
            </property>
           </widget>
          </item>
@@ -638,7 +600,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>745</width>
+     <width>774</width>
      <height>21</height>
     </rect>
    </property>
@@ -669,6 +631,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="action_About"/>
+    <addaction name="action_Plugins"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -742,10 +705,13 @@
     <bool>false</bool>
    </property>
   </action>
+  <action name="action_Plugins">
+   <property name="text">
+    <string>&amp;Plugins...</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="Resources/Images.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

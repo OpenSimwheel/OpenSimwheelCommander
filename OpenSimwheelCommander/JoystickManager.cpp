@@ -4,7 +4,6 @@ JoystickManager::JoystickManager(QObject *parent) :
     QObject(parent)
 {
     qRegisterMetaType<JoystickDriverInfo>();
-    qRegisterMetaType<JoystickDeviceInfo>();
 }
 
 JoystickManager::~JoystickManager()

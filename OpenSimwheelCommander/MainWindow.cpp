@@ -13,6 +13,11 @@
 #include "QMessageBox"
 #include "Version.h"
 
+#include "QPluginLoader"
+
+#include "Dialogs/PluginDialog.h"
+
+#include "TelemetryPlugins/TelemetryPluginInterface.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ApplicationSettings = new QSettings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName());
 
 
-    telemetry_feedback = TELEMETRY_FEEDBACK();
+    telemetry_feedback = TelemetryFeedback();
 
     WheelParameter = WHEEL_PARAMETER();
     WheelParameter.CenterSpringStrength = ApplicationSettings->value("WheelEffects/CenterSpringStrength").toInt();
@@ -59,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
     telemetryThread = new QThread;
     telemetryWorker->moveToThread(telemetryThread);
     connect(telemetryThread, SIGNAL(started()), telemetryWorker, SLOT(process()));
-    connect(telemetryWorker, SIGNAL(telemetry_feedback_received(TELEMETRY_FEEDBACK)), this, SLOT(updateTelemetryFeedbackInfo(TELEMETRY_FEEDBACK)));
+    connect(telemetryWorker, SIGNAL(telemetry_feedback_received(TelemetryFeedback)), this, SLOT(updateTelemetryFeedbackInfo(TelemetryFeedback)));
     connect(telemetryThread, SIGNAL(finished()), telemetryWorker, SLOT(deleteLater()));
     connect(telemetryThread, SIGNAL(finished()), telemetryThread, SLOT(deleteLater()));
 
@@ -69,18 +74,34 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menu_View->addAction(ui->telemetryOutput_dockWidget->toggleViewAction());
     ui->menu_View->addAction(ui->vjoy_dockWidget->toggleViewAction());
 
-
+    LoadPlugins();
 }
 
-void MainWindow::updateTelemetryFeedbackInfo(TELEMETRY_FEEDBACK feedback)
+void MainWindow::updateTelemetryFeedbackInfo(TelemetryFeedback feedback)
 {
     this->telemetry_feedback = feedback;
 
-    ui->lbl_telemetry_torque->setText(QString::number(feedback.torque, 'f', 6) + " Nm");
-    ui->lbl_telemetry_torquePct->setText(QString::number(feedback.torquePct * 100, 'f', 2) + " %");
-    ui->lbl_telemetry_angle->setText(QString::number(feedback.angle, 'f', 2) + " °");
-    ui->lbl_telemetry_lockToLock->setText(QString::number(feedback.steeringWheelLock, 'f', 2) + " °");
-    ui->lbl_telemetry_damper->setText(QString::number(feedback.damperPct * 100, 'f', 2) + " %");
+    bool isConnected = feedback.isConnected;
+
+    if (isConnected) {
+        ui->lbl_telemetry_status->setText("connected");
+        ui->groupBox_telemetryDebug->setEnabled(true);
+
+        ui->lbl_telemetry_torque->setText(QString::number(feedback.torque, 'f', 6) + " Nm");
+        ui->lbl_telemetry_torquePct->setText(QString::number(feedback.torquePct * 100, 'f', 2) + " %");
+        ui->lbl_telemetry_angle->setText(QString::number(feedback.angle, 'f', 2) + " °");
+        ui->lbl_telemetry_lockToLock->setText(QString::number(feedback.steeringWheelLock, 'f', 2) + " °");
+        ui->lbl_telemetry_damper->setText(QString::number(feedback.damperPct * 100, 'f', 2) + " %");
+    } else {
+        ui->groupBox_telemetryDebug->setEnabled(false);
+        ui->lbl_telemetry_status->setText("disconnected");
+        ui->lbl_telemetry_torque->setText("-");
+        ui->lbl_telemetry_torquePct->setText("-");
+        ui->lbl_telemetry_angle->setText("-");
+        ui->lbl_telemetry_lockToLock->setText("-");
+        ui->lbl_telemetry_damper->setText("-");
+    }
+
 }
 
 void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
@@ -235,4 +256,35 @@ void MainWindow::onJoystickInitialized(JoystickDriverInfo driverInfo, JoystickDe
 
 void MainWindow::onJoystickPositionUpdated(qint32 pos) {
     ui->lbl_vjoy_axis_pos->setText(QString::number(pos));
+}
+
+void MainWindow::LoadPlugins() {
+    pluginsDir = QApplication::applicationDirPath();
+
+//    if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
+//        pluginsDir.cdUp();
+
+    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+        //ui->comboBox_plugins->addItem(fileName);
+
+        QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
+        QObject *plugin = loader.instance();
+
+        if (plugin) {
+            pluginFileNames += fileName;
+            TelemetryPluginInterface *iTelemetryPlugin = qobject_cast<TelemetryPluginInterface *>(plugin);
+
+            if (iTelemetryPlugin) {
+                ui->comboBox_plugins->addItem(iTelemetryPlugin->GetName() + " - v" + iTelemetryPlugin->GetVersion());
+                telemetryWorker->SetPlugin(iTelemetryPlugin);
+            }
+
+        }
+    }
+}
+
+void MainWindow::on_action_Plugins_triggered()
+{
+    PluginDialog dialog(pluginsDir.path(), pluginFileNames, this);
+    dialog.exec();
 }

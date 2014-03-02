@@ -4,17 +4,7 @@
 #include <simplemotion_defs.h>
 #include <simplemotion.h>
 #include <QString>
-
-typedef struct
-{
-    float torque;
-    float torquePct;
-    float damperPct;
-    float steeringWheelLock;
-    float angle;
-} TELEMETRY_FEEDBACK;
-
-Q_DECLARE_METATYPE(TELEMETRY_FEEDBACK)
+#include <TelemetryPlugins/TelemetryPluginInterface.h>
 
 typedef struct
 {

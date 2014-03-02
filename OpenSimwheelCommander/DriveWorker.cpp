@@ -11,18 +11,18 @@
 
 #include <QSettings>
 
-DriveWorker::DriveWorker(WHEEL_PARAMETER* wheelParameter, TELEMETRY_FEEDBACK* telemetryFeedback, QObject *parent) :
+DriveWorker::DriveWorker(WHEEL_PARAMETER* wheelParameter, TelemetryFeedback* telemetryFeedback, QObject *parent) :
     QObject(parent)
 {
     qRegisterMetaType<FEEDBACK_DATA>();
     qRegisterMetaType<CALCULATION_RESULT>();
-    qRegisterMetaType<TELEMETRY_FEEDBACK>();
+    qRegisterMetaType<TelemetryFeedback>();
 
     qRegisterMetaType<WheelSettings>();
     qRegisterMetaType<JoystickDeviceInfo>();
 
     this->WheelParameter = wheelParameter;
-    this->TelemetryFeedback = telemetryFeedback;
+    this->TelemetryFeedbackData = telemetryFeedback;
 
     this->SmCommunicator = new SimpleMotionCommunicator();
     this->Joystick = new JoystickManager();
@@ -104,7 +104,7 @@ void DriveWorker::process()
 
 
        WHEEL_PARAMETER wheelParameter = *WheelParameter;
-       TELEMETRY_FEEDBACK telemetryFeedback = *TelemetryFeedback;
+       TelemetryFeedback telemetryFeedback = *TelemetryFeedbackData;
 
        if (!(WheelParameterEqual(wheelParameter, lastWheelParameter)))
        {

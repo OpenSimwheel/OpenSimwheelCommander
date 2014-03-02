@@ -25,8 +25,6 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-    libs/irsdk/irsdk_utils.cpp \
-    libs/irsdk/yaml_parser.cpp \
     MainWindow.cpp \
     ForceFeedbackProcessor.cpp \
     TelemetryWorker.cpp \
@@ -36,11 +34,10 @@ SOURCES += main.cpp\
     Dialogs/JoystickConfigurationDialog.cpp \
     Splash/IndestructableSplashScreen.cpp \
     SimpleMotionCommunicator.cpp \
-    JoystickManager.cpp
+    JoystickManager.cpp \
+    Dialogs/PluginDialog.cpp
 
 HEADERS  += \
-    libs/irsdk/irsdk_defines.h \
-    libs/irsdk/yaml_parser.h \
     CommonStructs.h \
     MainWindow.h \
     ForceFeedbackProcessor.h \
@@ -52,7 +49,9 @@ HEADERS  += \
     Dialogs/JoystickConfigurationDialog.h \
     Splash/IndestructableSplashScreen.h \
     SimpleMotionCommunicator.h \
-    JoystickManager.h
+    JoystickManager.h \
+    TelemetryPlugins/TelemetryPluginInterface.h \
+    Dialogs/PluginDialog.h
 
 FORMS    += \
     MainWindow.ui \
@@ -61,6 +60,8 @@ FORMS    += \
     Dialogs/JoystickConfigurationDialog.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/vJoySDK/lib/ -lvJoyInterface
+
+
 
 win32 {
     DEFINES += VERSION_BUILD_TIME=\\\"$$system('echo %time%')\\\"
@@ -77,3 +78,14 @@ OTHER_FILES += \
     OpenSimwheelCommander.rc
 
 RC_FILE = OpenSimwheelCommander.rc
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_iracing
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_iracingd
+
+INCLUDEPATH += $$PWD/../TelemetryPlugins/plugins
+DEPENDPATH += $$PWD/../TelemetryPlugins/plugins
+
+win32: {
+    system(copy ..\TelemetryPlugins\plugins\*.dll ..\build-OpenSimwheelCommander-Desktop_Qt_5_2_0_MinGW_32bit-Release\release)
+}

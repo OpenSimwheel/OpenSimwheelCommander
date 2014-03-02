@@ -2,10 +2,12 @@
 #include <QApplication>
 #include <Splash/IndestructableSplashScreen.h>
 #include <Version.h>
+#include <QtPlugin>
 
 #define RESTART_CODE 1000
 
 bool splashFilter(QObject* target, QEvent *event) { return true; }
+
 
 int main(int argc, char *argv[])
 {
