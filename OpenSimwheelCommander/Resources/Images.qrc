@@ -1,9 +1,9 @@
 <RCC>
     <qresource prefix="/splash">
         <file>logo-full-light.png</file>
-        <file>splash.png</file>
     </qresource>
     <qresource prefix="/logo">
-        <file>logo-glyph-48x48-transparent.ico</file>
+        <file>logo-glyph-48x48.ico</file>
+		<file>logo-glyph-16x16.ico</file>
     </qresource>
 </RCC>
