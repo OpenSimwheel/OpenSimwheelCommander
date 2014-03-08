@@ -21,3 +21,4 @@ Makefile
 build-*/*
 bin/
 bin/*
+TelemetryPlugins/build*
