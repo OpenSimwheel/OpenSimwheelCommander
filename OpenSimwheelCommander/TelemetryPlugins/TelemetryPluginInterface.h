@@ -23,9 +23,6 @@ class TelemetryPluginInterface
     public:
         virtual ~TelemetryPluginInterface() {}
 
-        virtual QString GetName() const = 0;
-        virtual QString GetVersion() const = 0;
-
         virtual TelemetryFeedback Update() = 0;
 };
 

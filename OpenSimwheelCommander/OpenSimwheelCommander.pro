@@ -80,12 +80,21 @@ OTHER_FILES += \
 RC_FILE = OpenSimwheelCommander.rc
 
 
+
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_iracing
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_iracingd
 
 INCLUDEPATH += $$PWD/../TelemetryPlugins/plugins
 DEPENDPATH += $$PWD/../TelemetryPlugins/plugins
 
-win32: {
-    system(copy ..\TelemetryPlugins\plugins\*.dll ..\build-OpenSimwheelCommander-Desktop_Qt_5_2_0_MinGW_32bit-Release\release)
-}
+DESTDIR = ../bin
+
+#install plugins
+plugins_to_install.path = $$DESTDIR/plugins/
+plugins_to_install.files += $$PWD/../TelemetryPlugins/plugins/*.dll
+INSTALLS += plugins_to_install
+
+#install core-dependencies
+qt_dependencies.path = $$DESTDIR
+qt_dependencies.files = $$PWD/../qt-bin/*
+INSTALLS += qt_dependencies

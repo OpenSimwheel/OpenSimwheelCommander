@@ -4,9 +4,6 @@
 #include <QObject>
 #include <simplemotion.h>
 
-#include <libs/irsdk/yaml_parser.h>
-#include <libs/irsdk/irsdk_defines.h>
-
 #include <QQueue>
 #include <ForceFeedbackProcessor.h>
 #include <TelemetryWorker.h>
@@ -35,8 +32,6 @@ public:
 
 
 private:
-
-
     smint32 pos = 0;
 
     FFBWheel ffbwheel;

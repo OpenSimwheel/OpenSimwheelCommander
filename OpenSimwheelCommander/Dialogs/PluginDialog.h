@@ -60,9 +60,8 @@ public:
 
 private:
     void findPlugins(const QString &path, const QStringList &fileNames);
-    void populateTreeWidget(QObject *plugin, const QString &text);
-    void addItems(QTreeWidgetItem *pluginItem, const char *interfaceName,
-                  const QStringList &features);
+    void populateTreeWidget(QObject *plugin, const QString &text, QJsonObject metaData);
+    void addItems(QTreeWidgetItem *pluginItem, QString interfaceName, QStringList features);
 
     QLabel *label;
     QTreeWidget *treeWidget;

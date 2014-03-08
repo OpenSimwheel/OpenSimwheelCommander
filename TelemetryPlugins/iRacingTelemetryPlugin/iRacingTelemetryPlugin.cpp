@@ -20,15 +20,6 @@ iRacingTelemetryPlugin::iRacingTelemetryPlugin() {
     feedback = TelemetryFeedback();
 }
 
-QString iRacingTelemetryPlugin::GetName() const {
-    return "iRacing Telemetry Plugin";
-}
-
-QString iRacingTelemetryPlugin::GetVersion() const {
-    return "0.1.7";
-}
-
-
 TelemetryFeedback iRacingTelemetryPlugin::Update()
 {
     if(irsdk_waitForDataReady(g_timeout, g_data))
@@ -55,8 +46,6 @@ TelemetryFeedback iRacingTelemetryPlugin::Update()
             }
             else if(g_data)
             {
-//                TelemetryFeedback feedback = TelemetryFeedback();
-
                 feedback.torque = * ((float *)(g_data + g_steeringwheel_torque_offset));
                 feedback.torquePct = * ((float *)(g_data + g_steeringwheel_torquepct_offset));
                 feedback.angle = * ((float *)(g_data + g_steeringwheel_angle_offset));

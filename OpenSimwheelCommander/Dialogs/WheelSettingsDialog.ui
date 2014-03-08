@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>521</width>
-    <height>487</height>
+    <height>459</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -34,64 +34,14 @@
      <x>10</x>
      <y>10</y>
      <width>501</width>
-     <height>241</height>
+     <height>212</height>
     </rect>
    </property>
    <property name="title">
     <string>Effect Settings</string>
    </property>
-   <layout class="QFormLayout" name="formLayout">
-    <item row="1" column="0" colspan="2">
-     <widget class="QGroupBox" name="effects_damper_groupbox">
-      <property name="title">
-       <string>Damping</string>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-      <property name="checkable">
-       <bool>true</bool>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="1">
-        <widget class="QSlider" name="effects_damper_slider">
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="invertedAppearance">
-          <bool>false</bool>
-         </property>
-         <property name="invertedControls">
-          <bool>false</bool>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksBelow</enum>
-         </property>
-         <property name="tickInterval">
-          <number>2</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QSpinBox" name="effects_damper_spinBox">
-         <property name="wrapping">
-          <bool>false</bool>
-         </property>
-         <property name="suffix">
-          <string notr="true">%</string>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="0" column="0" colspan="2">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
      <widget class="QGroupBox" name="groupBox_3">
       <property name="title">
        <string>Overall Strength</string>
@@ -144,7 +94,57 @@
       </layout>
      </widget>
     </item>
-    <item row="2" column="0" colspan="2">
+    <item>
+     <widget class="QGroupBox" name="effects_damper_groupbox">
+      <property name="title">
+       <string>Damping</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="2">
+        <widget class="QSpinBox" name="effects_damper_spinBox">
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="suffix">
+          <string notr="true">%</string>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSlider" name="effects_damper_slider">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="invertedAppearance">
+          <bool>false</bool>
+         </property>
+         <property name="invertedControls">
+          <bool>false</bool>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksBelow</enum>
+         </property>
+         <property name="tickInterval">
+          <number>2</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <widget class="QGroupBox" name="effects_centerspring_groupbox">
       <property name="title">
        <string>Center Spring</string>
@@ -194,29 +194,13 @@
       </layout>
      </widget>
     </item>
-    <item row="3" column="1">
-     <widget class="QCheckBox" name="effects_enable_setpointSmoothing">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="text">
-       <string>Enable Setpoint Smoothing</string>
-      </property>
-      <property name="checkable">
-       <bool>true</bool>
-      </property>
-      <property name="checked">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>450</y>
+     <y>420</y>
      <width>501</width>
      <height>31</height>
     </rect>
@@ -235,9 +219,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>270</y>
+     <y>230</y>
      <width>501</width>
-     <height>161</height>
+     <height>181</height>
     </rect>
    </property>
    <property name="title">
@@ -390,6 +374,28 @@
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QCheckBox" name="effects_enable_setpointSmoothing">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>150</y>
+      <width>161</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Enable Setpoint Smoothing</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
   </widget>
  </widget>

@@ -20,7 +20,6 @@ bool JoystickManager::Aquire(unsigned int deviceId) {
         GetVJDAxisMin(DeviceId,HID_USAGE_X,&AxisMinValue);
 
         report.bDevice = (BYTE)DeviceId;
-
     }
 
     if ((DeviceStatus == VJD_STAT_OWN) || ((DeviceStatus == VJD_STAT_FREE) && (!AcquireVJD(DeviceId)))) {
@@ -38,7 +37,7 @@ bool JoystickManager::Aquire(unsigned int deviceId) {
         deviceInfo.Id = deviceId;
         deviceInfo.AxisMin = AxisMinValue;
         deviceInfo.AxisMax = AxisMaxValue;
-        deviceInfo.Status = GetHumanReadableStatus(DeviceStatus);
+        deviceInfo.Status = GetHumanReadableStatus(GetVJDStatus(UINT(DeviceId)));
 
         emit Initialized(driverInfo, deviceInfo);
     }

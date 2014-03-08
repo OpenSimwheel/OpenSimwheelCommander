@@ -71,8 +71,11 @@ MainWindow::MainWindow(QWidget *parent) :
     telemetryThread->start(QThread::HighPriority);
 
     ui->menu_View->addAction(ui->debugInformation_dockWidget->toggleViewAction());
-    ui->menu_View->addAction(ui->telemetryOutput_dockWidget->toggleViewAction());
     ui->menu_View->addAction(ui->vjoy_dockWidget->toggleViewAction());
+
+
+    ui->vjoy_dockWidget->hide();
+    ui->debugInformation_dockWidget->hide();
 
     LoadPlugins();
 }
@@ -248,10 +251,12 @@ void MainWindow::onJoystickInitialized(JoystickDriverInfo driverInfo, JoystickDe
     ui->lbl_vjoy_vendor->setText(driverInfo.Vendor);
     ui->lbl_vjoy_product->setText(driverInfo.Product);
     ui->lbl_vjoy_version->setText(driverInfo.VersionNumber);
+    ui->lbl_vjoy_device_status->setText(deviceInfo.Status);
 
     ui->lbl_vjoy_axis_min->setText(QString::number(deviceInfo.AxisMin));
     ui->lbl_vjoy_axis_max->setText(QString::number(deviceInfo.AxisMax));
     ui->lbl_vjoy_device_id->setText(QString::number(deviceInfo.Id));
+
 }
 
 void MainWindow::onJoystickPositionUpdated(qint32 pos) {
@@ -260,6 +265,7 @@ void MainWindow::onJoystickPositionUpdated(qint32 pos) {
 
 void MainWindow::LoadPlugins() {
     pluginsDir = QApplication::applicationDirPath();
+    pluginsDir.cd("plugins");
 
 //    if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
 //        pluginsDir.cdUp();
@@ -275,7 +281,12 @@ void MainWindow::LoadPlugins() {
             TelemetryPluginInterface *iTelemetryPlugin = qobject_cast<TelemetryPluginInterface *>(plugin);
 
             if (iTelemetryPlugin) {
-                ui->comboBox_plugins->addItem(iTelemetryPlugin->GetName() + " - v" + iTelemetryPlugin->GetVersion());
+                QJsonObject metaData = loader.metaData().value("MetaData").toObject();
+
+                QString name = metaData.value("name").toString();
+                QString version = metaData.value("version").toString();
+
+                ui->comboBox_plugins->addItem(name + " - v" + version);
                 telemetryWorker->SetPlugin(iTelemetryPlugin);
             }
 

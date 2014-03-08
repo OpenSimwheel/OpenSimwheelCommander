@@ -13,9 +13,6 @@ class iRacingTelemetryPlugin : public QObject, TelemetryPluginInterface
 
 public:
     iRacingTelemetryPlugin();
-    QString GetName() const;
-    QString GetVersion() const;
-
     TelemetryFeedback Update();
 
 private:

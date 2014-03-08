@@ -50,6 +50,8 @@
 #include <QPushButton>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QHeaderView>
 
 PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
@@ -96,20 +98,31 @@ void PluginDialog::findPlugins(const QString &path,
     const QDir dir(path);
 
     foreach (QObject *plugin, QPluginLoader::staticInstances())
-        populateTreeWidget(plugin, tr("%1 (Static Plugin)")
-                                   .arg(plugin->metaObject()->className()));
+        populateTreeWidget(plugin, tr("%1 (Static Plugin)").arg(plugin->metaObject()->className()), QJsonObject());
 
     foreach (QString fileName, fileNames) {
         QPluginLoader loader(dir.absoluteFilePath(fileName));
         QObject *plugin = loader.instance();
-        if (plugin)
-            populateTreeWidget(plugin, fileName);
+        if (plugin) {
+            QJsonObject metaData = loader.metaData().value("MetaData").toObject();
+
+            QString name = metaData.value("name").toString();
+            QString version = metaData.value("version").toString();
+
+            QString pluginInfo = tr("%1 - v%2 (%3)")
+                    .arg(name, version, fileName);
+
+            populateTreeWidget(plugin, pluginInfo, metaData);
+        }
+
     }
 }
 
-void PluginDialog::populateTreeWidget(QObject *plugin, const QString &text)
+void PluginDialog::populateTreeWidget(QObject *plugin, const QString &text, QJsonObject metaData)
 {
     QTreeWidgetItem *pluginItem = new QTreeWidgetItem(treeWidget);
+
+
     pluginItem->setText(0, text);
     treeWidget->setItemExpanded(pluginItem, true);
 
@@ -117,26 +130,25 @@ void PluginDialog::populateTreeWidget(QObject *plugin, const QString &text)
     boldFont.setBold(true);
     pluginItem->setFont(0, boldFont);
 
+
+    QString features = metaData.value("features").toString();
+
     if (plugin) {
         TelemetryPluginInterface *iTelemetryPlugin = qobject_cast<TelemetryPluginInterface *>(plugin);
-        if (iTelemetryPlugin)
-            addItems(pluginItem, "TelemetryPluginInterface", QStringList(iTelemetryPlugin->GetName() + " - v" + iTelemetryPlugin->GetVersion()));
-
-
+        if (iTelemetryPlugin) {
+            addItems(pluginItem, "TelemetryPluginInterface", QStringList(features));
+        }
     }
 }
 
 void PluginDialog::addItems(QTreeWidgetItem *pluginItem,
-                            const char *interfaceName,
-                            const QStringList &features)
+                            QString interfaceName, QStringList features)
 {
     QTreeWidgetItem *interfaceItem = new QTreeWidgetItem(pluginItem);
     interfaceItem->setText(0, interfaceName);
     interfaceItem->setIcon(0, interfaceIcon);
 
     foreach (QString feature, features) {
-        if (feature.endsWith("..."))
-            feature.chop(3);
         QTreeWidgetItem *featureItem = new QTreeWidgetItem(interfaceItem);
         featureItem->setText(0, feature);
         featureItem->setIcon(0, featureIcon);

@@ -11,7 +11,7 @@ TARGET = iRacingTelemetryPlugin
 #CONFIG += staticlib
 TEMPLATE      = lib
  CONFIG       += plugin
- INCLUDEPATH  += ../../
+ INCLUDEPATH  += ../../OpenSimwheelCommander/
  HEADERS       = iRacingTelemetryPlugin.h \
     irsdk/irsdk_defines.h \
     irsdk/yaml_parser.h

@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
         QCoreApplication::setOrganizationDomain("opensimwheel.net");
         QCoreApplication::setApplicationName("OpenSimwheel Commander");
 
-        QPixmap splashImg(":/splash/splash.png");
+        QPixmap splashImg(":/splash/logo-full-light.png");
         IndestructableSplashScreen *splash = new IndestructableSplashScreen(splashImg);
 
         splash->show();
