@@ -3,7 +3,7 @@
 #include "QtSerialPort/qserialport.h"
 #include "QtSerialPort/qserialportinfo.h"
 
-DriveStageConfigDialog::DriveStageConfigDialog(QSettings* settings, QWidget *parent) :
+DriveStageConfigDialog::DriveStageConfigDialog(QSettings* settings, OSWDriveParameter *driveParameter, QWidget *parent) :
     QDialog(parent, Qt::Tool),
     ui(new Ui::DriveStageConfigDialog)
 {
@@ -13,12 +13,19 @@ DriveStageConfigDialog::DriveStageConfigDialog(QSettings* settings, QWidget *par
 
     this->settings = settings;
 
+    QStringList items;
+
     foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts())
-        ui->comPortComboBox->addItem(serialPortInfo.portName());
+        items << serialPortInfo.portName();
 
-    ui->comPortComboBox->setCurrentText(this->settings->value("DriveStage/ComPort").toString());
-    ui->deviceAddressSpinBox->setValue(this->settings->value("DriveStage/DeviceAddress").toInt());
+    items.sort(Qt::CaseInsensitive);
 
+    ui->comPortComboBox->addItems(items);
+
+    this->driveParameter = driveParameter;
+    ui->comPortComboBox->setCurrentText(driveParameter->ComPort);
+    ui->deviceAddressSpinBox->setValue(driveParameter->DeviceAddress);
+    ui->connectionTimeoutMsSpinBox->setValue(driveParameter->CommunicationTimeoutMs);
 }
 
 DriveStageConfigDialog::~DriveStageConfigDialog()
@@ -28,7 +35,12 @@ DriveStageConfigDialog::~DriveStageConfigDialog()
 
 void DriveStageConfigDialog::on_buttonBox_accepted()
 {
-    this->settings->setValue("DriveStage/ComPort", ui->comPortComboBox->currentText());
-    this->settings->setValue("DriveStage/DeviceAddress", ui->deviceAddressSpinBox->value());
+    driveParameter->CommunicationTimeoutMs = ui->connectionTimeoutMsSpinBox->value();
+    driveParameter->ComPort = ui->comPortComboBox->currentText().toStdString().c_str();
+    driveParameter->DeviceAddress = ui->deviceAddressSpinBox->value();
+
+    this->settings->setValue("DriveStage/ComPort", driveParameter->ComPort);
+    this->settings->setValue("DriveStage/DeviceAddress", driveParameter->DeviceAddress);
+    this->settings->setValue("DriveStage/CommunicationTimeoutMs", driveParameter->CommunicationTimeoutMs);
     this->settings->sync();
 }

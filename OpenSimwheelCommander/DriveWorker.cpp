@@ -11,178 +11,101 @@
 
 #include <QSettings>
 
-DriveWorker::DriveWorker(WHEEL_PARAMETER* wheelParameter, TelemetryFeedback* telemetryFeedback, QObject *parent) :
+DriveWorker::DriveWorker(OSWDriveParameter* driveParameter,
+                         WHEEL_PARAMETER* wheelParameter,
+                         TelemetryFeedback* telemetryFeedback,
+                         OSWOptions* options,
+                         QObject *parent) :
     QObject(parent)
 {
     qRegisterMetaType<FEEDBACK_DATA>();
-    qRegisterMetaType<CALCULATION_RESULT>();
     qRegisterMetaType<TelemetryFeedback>();
+    qRegisterMetaType<OSWDriveParameter>();
+    qRegisterMetaType<OSWOptions>();
 
     qRegisterMetaType<WheelSettings>();
     qRegisterMetaType<JoystickDeviceInfo>();
 
     this->WheelParameter = wheelParameter;
     this->TelemetryFeedbackData = telemetryFeedback;
+    this->Options = options;
 
     this->SmCommunicator = new SimpleMotionCommunicator();
     this->Joystick = new JoystickManager();
+
+    this->DriveParameter = driveParameter;
+
+    pos = 0;
+    run = false;
 }
 
 DriveWorker::~DriveWorker()
 {
-    shutdown();
+    SmCommunicator->Shutdown();
 }
 
-void DriveWorker::shutdown()
-{
-    SmCommunicator->SetParameter(SMP_OSW_TORQUE_SETPOINT, 0);
-    SmCommunicator->DisableDrive();
-    SmCommunicator->Disconnect();
-}
 
 void DriveWorker::process()
 {
+    const qint64 LOOP_TIMEOUT = 1000; // In µs
+    qint64 lastLoop = 0, frameStartCounter = 0;
+    FEEDBACK_DATA feedback = FEEDBACK_DATA();
+    WHEEL_PARAMETER lastWheelParameter = *WheelParameter;
+
     emit initializing();
 
     if (!Joystick->Aquire(1))
         return;
 
-    SmCommunicator->Connect(WheelParameter->ComPort, WheelParameter->DeviceAddress);
 
-    //waiting for drive to finish initialization
-    SmCommunicator->WaitForDriveReady();
-
-    SmCommunicator->EnableDrive();
-
-#ifdef USE_FAST_COMMAND
-    const qint64 LOOP_TIMEOUT = 2000; // In µs
-#else
-    const qint64 LOOP_TIMEOUT = 4000; // In µs
-#endif
-
-    const qint64 WAKEUP_RESOLUTION = 1100; // In µs
-
-    StartCounter();
-
-    SmCommunicator->SetParameter(SMP_FAULTS, 0); //clear faults if any
-
-    qint64 lastLoop = 0;
-    qint64 frameStartCounter = 0;
-
-    CALCULATION_RESULT res = CALCULATION_RESULT();
-    FEEDBACK_DATA feedback = FEEDBACK_DATA();
-
-    res.torque = 0;
-
-    feedback.position = 10;
-    feedback.torque = 10;
-    feedback.calculationBenchmark = 0;
-    feedback.lastLoopBenchmark = 0;
-
-    pos = findHome();
-
-    smint32 dutyCycle;
-
-    SmCommunicator->SetParameter(SMP_PWM_DUTYCYCLE, 2000);
-    SmCommunicator->GetParameter(SMP_PWM_DUTYCYCLE, &dutyCycle);
-    feedback.debug1 = dutyCycle;
-
-
-    UpdateWheelParameter();
-    SmCommunicator->InitializeLowLevelCommunication(SMP_OSW_TORQUE_SETPOINT,SMP_OSW_JOYSTICK_POS);
 
     emit initialized();
 
-    WHEEL_PARAMETER lastWheelParameter = *WheelParameter;
-
+    StartCounter();
     while(true)
     {
+       while(!run) {
+           Sleep(100);
+       }
+
        qint64 counter = GetCounter();
 
        lastLoop = counter - frameStartCounter;
        frameStartCounter = counter;
 
-
        WHEEL_PARAMETER wheelParameter = *WheelParameter;
        TelemetryFeedback telemetryFeedback = *TelemetryFeedbackData;
 
-       if (!(WheelParameterEqual(wheelParameter, lastWheelParameter)))
-       {
-            UpdateWheelParameter();
-            lastWheelParameter = wheelParameter;
-            SmCommunicator->InitializeLowLevelCommunication(SMP_OSW_TORQUE_SETPOINT, SMP_OSW_JOYSTICK_POS);
-            continue;
-       }
-
        qint32 torque = ffbwheel.calculateTorque(telemetryFeedback);
 
-       qint64 stamp1 = GetCounter();
-
 // communication BEGIN
+       qint64 stamp1 = GetCounter();
        SmCommunicator->AppendCommandToQueue(SMPCMD_24B, torque);
-#ifdef USE_FAST_COMMAND
        SmCommunicator->ExecuteFastCommandQueue();
-#else
-       SmCommunicator->ExecuteCommandQueue();
-#endif
        SmCommunicator->GetQueuedReturnValue(&pos);
-
-//       SmCommunicator->ExperimentalFastGetPosition(&pos);
-
+       qint64 stamp2 = GetCounter();
 // communication END
 
-       qint64 stamp2 = GetCounter();
+       Joystick->UpdateRelativePosition(pos / (wheelParameter.DegreesOfRotation * (10000.0d/360) / 2));
 
        feedback.calculationBenchmark = stamp2 - stamp1;
        feedback.torque = torque;
        feedback.position = pos;
        feedback.lastLoopBenchmark = lastLoop;
 
-       Joystick->UpdateRelativePosition(pos / (wheelParameter.DegreesOfRotation * (10000.0d/360) / 2));
-
        emit feedback_received(feedback);
 
-
-       // sleep for the remainder
-       qint64 sleep = LOOP_TIMEOUT - WAKEUP_RESOLUTION - (GetCounter() - frameStartCounter);
-
-       if(sleep >= 0)
-           Sleep(sleep / 1000);
+       if (!(WheelParameterEqual(wheelParameter, lastWheelParameter)))
+       {
+            UpdateWheelParameter();
+            lastWheelParameter = wheelParameter;
+       }
 
        while(GetCounter() - frameStartCounter < LOOP_TIMEOUT) { }
     }
 }
 
 
-smint32 DriveWorker::findHome()
-{
-    SmCommunicator->SetParameter(SMP_TORQUE_LPF_BANDWIDTH, 1);
-    SmCommunicator->SwitchControlMode(SimpleMotionCommunicator::ControlModePosition);
-
-    if (this->WheelParameter->CenterOffsetEnabled)
-        SmCommunicator->SetParameter(SMP_TRAJ_PLANNER_HOMING_OFFSET, this->WheelParameter->CenterOffset);
-    else
-        SmCommunicator->SetParameter(SMP_TRAJ_PLANNER_HOMING_OFFSET, 0);
-
-    SmCommunicator->SetParameter(SMP_HOMING_CONTROL, 1);
-
-    smint32 status, center = 0;
-    SmCommunicator->GetParameter(SMP_STATUS, &status);
-
-    while (bool(status & STAT_HOMING)) {
-        SmCommunicator->GetParameter(SMP_STATUS, &status);
-    }
-
-    SmCommunicator->SetParameter(SMP_OSW_JOYSTICK_POS, center);
-
-    Sleep(200);
-
-    SmCommunicator->SwitchControlMode(SimpleMotionCommunicator::ControlModeTorque);
-    SmCommunicator->SetParameter(SMP_TORQUE_LPF_BANDWIDTH, 5);
-
-    emit homing_completed(this->WheelParameter->CenterOffset);
-    return center;
-}
 
 void DriveWorker::StartCounter() {
     LARGE_INTEGER li;
@@ -212,6 +135,7 @@ void DriveWorker::UpdateWheelParameter()
     settings.OverallStrength = smint32(WheelParameter->OverallStrength);
 
     SmCommunicator->LoadSettings(settings);
+    SmCommunicator->InitializeLowLevelCommunication(SMP_OSW_TORQUE_SETPOINT, SMP_OSW_JOYSTICK_POS);
 }
 
 

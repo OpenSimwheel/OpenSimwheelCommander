@@ -4,7 +4,6 @@
 #include <simplemotion_defs.h>
 #include <simplemotion.h>
 #include <QString>
-#include <TelemetryPlugins/TelemetryPluginInterface.h>
 
 typedef struct
 {
@@ -20,21 +19,6 @@ Q_DECLARE_METATYPE(FEEDBACK_DATA)
 
 typedef struct
 {
-    qint32 torque;
-} CALCULATION_RESULT;
-
-Q_DECLARE_METATYPE(CALCULATION_RESULT)
-
-
-typedef struct {
-    qint32 pos_delta;
-    qint64 time;
-} VELOCITY_SAMPLE;
-
-Q_DECLARE_METATYPE(VELOCITY_SAMPLE)
-
-typedef struct
-{
     qint8 DampingStrength; // in pct
     bool DampingEnabled;
 
@@ -46,11 +30,24 @@ typedef struct
     qint16 DegreesOfRotation; // in degrees
     bool CenterOffsetEnabled;
     qint32 CenterOffset;
-
-    const char* ComPort;
-    qint32 DeviceAddress;
 } WHEEL_PARAMETER;
 
 Q_DECLARE_METATYPE(WHEEL_PARAMETER)
+
+typedef struct
+{
+    const char* ComPort;
+    qint32 DeviceAddress;
+    quint16 CommunicationTimeoutMs;
+} OSWDriveParameter;
+
+Q_DECLARE_METATYPE(OSWDriveParameter)
+
+typedef struct
+{
+    quint8 StartupFrequency;
+} OSWOptions;
+
+Q_DECLARE_METATYPE(OSWOptions)
 
 #endif // COMMONSTRUCTS_H

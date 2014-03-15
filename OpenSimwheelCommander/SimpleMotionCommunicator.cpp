@@ -7,15 +7,24 @@ SimpleMotionCommunicator::SimpleMotionCommunicator(QObject *parent) :
     QObject(parent)
 {
     isConnected = false;
+    isReady = false;
 }
 
-bool SimpleMotionCommunicator::Connect(const char* comPort, smint32 deviceAddress) {
+bool SimpleMotionCommunicator::Connect(const char* comPort, smint32 deviceAddress, quint16 connectionTimeoutMs) {
+    smSetTimeout(connectionTimeoutMs);
     smbus handle = smOpenBus(comPort);
 
     if (handle >= 0) {
         busHandle = handle;
         isConnected = true;
         SetDeviceAddress(deviceAddress);
+
+//        SM_STATUS stat;
+//        stat = smExecuteCommandQueue(busHandle, deviceAddress);
+
+//        if (bool(stat))
+//            return true;
+
         return true;
     }
 
@@ -90,4 +99,25 @@ void SimpleMotionCommunicator::LoadSettings(WheelSettings settings) {
     this->SetParameter(SMP_OSW_EFFECTS_DAMPING_STR, settings.DampingStrength);
     this->SetParameter(SMP_OSW_EFFECTS_CENTERSPRING_STR, settings.CenterSpringStrength);
     this->SetParameter(SMP_OSW_EFFECTS_OVERALL_STR, settings.OverallStrength);
+}
+
+void SimpleMotionCommunicator::AutoCalibrate(smint32 homingFrequency, smint32 centerOffset) {
+    SetParameter(SMP_TORQUE_LPF_BANDWIDTH, homingFrequency);
+    SwitchControlMode(SimpleMotionCommunicator::ControlModePosition);
+
+    SetParameter(SMP_TRAJ_PLANNER_HOMING_OFFSET, centerOffset);
+
+    SetParameter(SMP_HOMING_CONTROL, 1);
+
+    smint32 status;
+    GetParameter(SMP_STATUS, &status);
+
+    while (bool(status & STAT_HOMING)) {
+        GetParameter(SMP_STATUS, &status);
+    }
+
+    SetParameter(SMP_OSW_JOYSTICK_POS, 0);
+
+    SwitchControlMode(SimpleMotionCommunicator::ControlModeTorque);
+    SetTorque(0);
 }

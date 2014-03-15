@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <Qsettings>
+#include <CommonStructs.h>
 
 namespace Ui {
 class DriveStageConfigDialog;
@@ -13,7 +14,7 @@ class DriveStageConfigDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit DriveStageConfigDialog(QSettings* settings, QWidget *parent = 0);
+    explicit DriveStageConfigDialog(QSettings* settings, OSWDriveParameter* driveParameter, QWidget *parent = 0);
     ~DriveStageConfigDialog();
 
     QSettings* settings;
@@ -23,6 +24,8 @@ private slots:
 
 private:
     Ui::DriveStageConfigDialog *ui;
+
+    OSWDriveParameter* driveParameter;
 };
 
 #endif // DRIVESTAGECONFIGDIALOG_H

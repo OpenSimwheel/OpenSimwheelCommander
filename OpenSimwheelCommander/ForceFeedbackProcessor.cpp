@@ -5,7 +5,6 @@ FFBWheel::FFBWheel(QObject *parent) :
     QObject(parent)
 {
     qRegisterMetaType<WHEEL_PARAMETER>();
-    qRegisterMetaType<VELOCITY_SAMPLE>();
 }
 
 qint32 FFBWheel::calculateTorque(TelemetryFeedback telemetry_feedback)

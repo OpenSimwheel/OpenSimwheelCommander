@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     Splash/IndestructableSplashScreen.cpp \
     SimpleMotionCommunicator.cpp \
     JoystickManager.cpp \
-    Dialogs/PluginDialog.cpp
+    Dialogs/PluginDialog.cpp \
+    Dialogs/OptionsDialog.cpp
 
 HEADERS  += \
     CommonStructs.h \
@@ -51,13 +52,15 @@ HEADERS  += \
     SimpleMotionCommunicator.h \
     JoystickManager.h \
     TelemetryPlugins/TelemetryPluginInterface.h \
-    Dialogs/PluginDialog.h
+    Dialogs/PluginDialog.h \
+    Dialogs/OptionsDialog.h
 
 FORMS    += \
     MainWindow.ui \
     Dialogs/DriveStageConfigDialog.ui \
     Dialogs/WheelSettingsDialog.ui \
-    Dialogs/JoystickConfigurationDialog.ui
+    Dialogs/JoystickConfigurationDialog.ui \
+    Dialogs/OptionsDialog.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/vJoySDK/lib/ -lvJoyInterface
 

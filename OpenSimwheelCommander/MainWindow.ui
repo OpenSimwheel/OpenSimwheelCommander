@@ -393,8 +393,8 @@
      <rect>
       <x>20</x>
       <y>290</y>
-      <width>191</width>
-      <height>251</height>
+      <width>207</width>
+      <height>272</height>
      </rect>
     </property>
     <property name="floating">
@@ -539,6 +539,34 @@
            </property>
           </widget>
          </item>
+         <item row="12" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Times Above Target:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="1">
+          <widget class="QLabel" name="lbl_above_target">
+           <property name="text">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Timeouts:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="1">
+          <widget class="QLabel" name="lbl_timeouts">
+           <property name="text">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
         </layout>
         <zorder>lbl_calc_avg</zorder>
         <zorder>label</zorder>
@@ -557,6 +585,10 @@
         <zorder>label_3</zorder>
         <zorder>lbl_wheel_center_offset</zorder>
         <zorder>line</zorder>
+        <zorder>label_12</zorder>
+        <zorder>lbl_above_target</zorder>
+        <zorder>label_13</zorder>
+        <zorder>lbl_timeouts</zorder>
        </widget>
       </item>
      </layout>
@@ -577,7 +609,6 @@
      <string>&amp;File</string>
     </property>
     <addaction name="action_Restart"/>
-    <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
    <widget class="QMenu" name="menu_Settings">
@@ -588,6 +619,8 @@
     <addaction name="action_Joystick_Settings"/>
     <addaction name="separator"/>
     <addaction name="actionWheel_Settings"/>
+    <addaction name="separator"/>
+    <addaction name="action_Options"/>
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
@@ -676,6 +709,11 @@
   <action name="action_Plugins">
    <property name="text">
     <string>&amp;Plugins...</string>
+   </property>
+  </action>
+  <action name="action_Options">
+   <property name="text">
+    <string>&amp;Options...</string>
    </property>
   </action>
  </widget>

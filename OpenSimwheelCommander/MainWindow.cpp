@@ -16,6 +16,7 @@
 #include "QPluginLoader"
 
 #include "Dialogs/PluginDialog.h"
+#include "Dialogs/OptionsDialog.h"
 
 #include "TelemetryPlugins/TelemetryPluginInterface.h"
 
@@ -34,23 +35,29 @@ MainWindow::MainWindow(QWidget *parent) :
     telemetry_feedback = TelemetryFeedback();
 
     WheelParameter = WHEEL_PARAMETER();
-    WheelParameter.CenterSpringStrength = ApplicationSettings->value("WheelEffects/CenterSpringStrength").toInt();
-    WheelParameter.DegreesOfRotation = ApplicationSettings->value("WheelParameter/DegreesOfRotation").toInt();
-    WheelParameter.OverallStrength = ApplicationSettings->value("WheelEffects/OverallStrength").toInt();
-    WheelParameter.DampingStrength = ApplicationSettings->value("WheelEffects/DampingStrength").toInt();
-    WheelParameter.CenterOffset = ApplicationSettings->value("WheelParameter/CenterOffset").toInt();
-    WheelParameter.DampingEnabled = ApplicationSettings->value("WheelEffects/DampingEnabled").toBool();
-    WheelParameter.CenterSpringEnabled = ApplicationSettings->value("WheelEffects/CenterSpringEnabled").toBool();
-    WheelParameter.CenterOffsetEnabled = ApplicationSettings->value("WheelParameter/CenterOffsetEnabled").toBool();
-    WheelParameter.ComPort = ApplicationSettings->value("DriveStage/ComPort").toString().toStdString().c_str();
-    WheelParameter.DeviceAddress = ApplicationSettings->value("DriveStage/DeviceAddress").toInt();
+    WheelParameter.CenterSpringStrength = ApplicationSettings->value("WheelEffects/CenterSpringStrength", 0).toInt();
+    WheelParameter.DegreesOfRotation = ApplicationSettings->value("WheelParameter/DegreesOfRotation", 180).toInt();
+    WheelParameter.OverallStrength = ApplicationSettings->value("WheelEffects/OverallStrength", 30).toInt();
+    WheelParameter.DampingStrength = ApplicationSettings->value("WheelEffects/DampingStrength", 20).toInt();
+    WheelParameter.CenterOffset = ApplicationSettings->value("WheelParameter/CenterOffset", 0).toInt();
+    WheelParameter.DampingEnabled = ApplicationSettings->value("WheelEffects/DampingEnabled", true).toBool();
+    WheelParameter.CenterSpringEnabled = ApplicationSettings->value("WheelEffects/CenterSpringEnabled", false).toBool();
+    WheelParameter.CenterOffsetEnabled = ApplicationSettings->value("WheelParameter/CenterOffsetEnabled", false).toBool();
 
-    driveWorker = new DriveWorker(&WheelParameter, &telemetry_feedback);
+
+    driveParameter = OSWDriveParameter();
+    driveParameter.ComPort = ApplicationSettings->value("DriveStage/ComPort", "COM8").toString().toStdString().c_str();
+    driveParameter.DeviceAddress = ApplicationSettings->value("DriveStage/DeviceAddress", 1).toInt();
+    driveParameter.CommunicationTimeoutMs = ApplicationSettings->value("DriveStage/CommunicationTimeoutMs", 16).toInt();
+
+    options = OSWOptions();
+    options.StartupFrequency = ApplicationSettings->value("Settings/HomingFrequency", 1).toInt();
+
+    driveWorker = new DriveWorker(&driveParameter, &WheelParameter, &telemetry_feedback, &options);
     driveThread = new QThread;
     driveWorker->moveToThread(driveThread);
     connect(driveThread, SIGNAL(started()), driveWorker, SLOT(process()));
     connect(driveWorker, SIGNAL(feedback_received(FEEDBACK_DATA)), this, SLOT(updateFeedbackInfo(FEEDBACK_DATA)));
-    connect(driveWorker, SIGNAL(homing_completed(qint32)), this, SLOT(onHomingCompleted(qint32)));
     connect(driveThread, SIGNAL(finished()), driveWorker, SLOT(deleteLater()));
     connect(driveThread, SIGNAL(finished()), driveThread, SLOT(deleteLater()));
     connect(driveWorker, SIGNAL(initializing()), this, SLOT(onWheelInitializing()));
@@ -73,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menu_View->addAction(ui->debugInformation_dockWidget->toggleViewAction());
     ui->menu_View->addAction(ui->vjoy_dockWidget->toggleViewAction());
 
+    ui->lbl_wheel_center_offset->setText(this->WheelParameter.CenterOffsetEnabled ? QString::number(WheelParameter.CenterOffset) : "Disabled");
 
     ui->vjoy_dockWidget->hide();
     ui->debugInformation_dockWidget->hide();
@@ -109,7 +117,8 @@ void MainWindow::updateTelemetryFeedbackInfo(TelemetryFeedback feedback)
 
 void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
 {
-    static int countAboveTarget = 0;
+    static quint32 countAboveTarget = 0;
+    static quint32 timeouts = 0;
 
     if (count == 0) {
         min = data.calculationBenchmark;
@@ -121,7 +130,7 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
     } else {
         if (data.calculationBenchmark < min)
             min = data.calculationBenchmark;
-        else if (data.calculationBenchmark > max)
+        else if (data.calculationBenchmark > max && data.calculationBenchmark < driveParameter.CommunicationTimeoutMs)
             max = data.calculationBenchmark;
 
         sum += data.calculationBenchmark;
@@ -130,7 +139,10 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
     }
 
     if (data.lastLoopBenchmark > MAX_LATENCY)
-        countAboveTarget++;
+        if (data.lastLoopBenchmark < driveParameter.CommunicationTimeoutMs)
+            countAboveTarget = countAboveTarget + 1;
+        else
+            timeouts = timeouts + 1;
 
     ui->lbl_position->setText(QString::number(data.position));
     ui->lbl_torque->setText(QString::number(data.torque));
@@ -139,19 +151,15 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
     ui->lbl_calc_avg->setText(QString::number(avg / 1000.0d, 'f', 2) + " ms / " + QString::number(count));
     ui->lbl_calc_min->setText(QString::number(min / 1000.0d, 'f', 2) + " ms");
     ui->lbl_calc_max->setText(QString::number(max / 1000.0d, 'f', 2) + " ms");
+    ui->lbl_above_target->setText(QString::number(countAboveTarget));
+    ui->lbl_timeouts->setText(QString::number(timeouts));
 
-    if (data.lastLoopBenchmark == 0)
-        ui->statusBar->showMessage("Loop Frequency: >1000Hz");
-    else
-        ui->statusBar->showMessage("Loop Frequency: " + QString::number(1000 / (data.lastLoopBenchmark / 1000.0d), 'f', 2) + "Hz | " + QString::number(countAboveTarget) + " times above target");
+    ui->statusBar->showMessage("Loop Frequency: " + QString::number(1000 / (data.lastLoopBenchmark / 1000.0d), 'f', 2) + "Hz");
 
     count++;
 }
 
-void MainWindow::onHomingCompleted(qint32 center)
-{
-    ui->lbl_wheel_center_offset->setText(QString::number(center));
-}
+
 
 MainWindow::~MainWindow()
 {
@@ -167,7 +175,7 @@ void MainWindow::on_action_Quit_triggered()
 
 void MainWindow::on_action_Drive_Stage_triggered()
 {
-    DriveStageConfigDialog* dialog = new DriveStageConfigDialog(ApplicationSettings, this);
+    DriveStageConfigDialog* dialog = new DriveStageConfigDialog(ApplicationSettings, &driveParameter, this);
     dialog->setModal(true);
     dialog->show();
 }
@@ -205,7 +213,38 @@ void MainWindow::on_action_Joystick_Settings_triggered()
 void MainWindow::onWheelInitializing()
 {
     this->setEnabled(false);
-    splash->showMessage("Initializing Wheel...", Qt::AlignBottom | Qt::AlignRight);
+    splash->showMessage("Initializing wheel...", Qt::AlignBottom | Qt::AlignRight);
+
+    splash->showMessage(QString("Trying to connect to servo drive on SerialPort %1 & DeviceAddress %2...").arg(driveParameter.ComPort,QString::number(driveParameter.DeviceAddress)), Qt::AlignBottom | Qt::AlignRight);
+    bool success = driveWorker->SmCommunicator->Connect(driveParameter.ComPort, driveParameter.DeviceAddress, driveParameter.CommunicationTimeoutMs);
+
+    if (success == false) {
+        QMessageBox::warning(this,
+                             "Connetion to drive stage failed",
+                             QString("Could not connect to servo drive on SerialPort %1 & DeviceAddress %2. Please check your settings!")
+                             .arg(driveParameter.ComPort, QString::number(driveParameter.DeviceAddress)));
+        return;
+    }
+
+    splash->showMessage("Waiting for servo drive to be ready...", Qt::AlignBottom | Qt::AlignRight);
+    driveWorker->SmCommunicator->WaitForDriveReady(); //waiting for drive to finish initialization
+    driveWorker->SmCommunicator->ClearFaults();
+    splash->showMessage("Enabling servo drive...", Qt::AlignBottom | Qt::AlignRight);
+    driveWorker->SmCommunicator->EnableDrive();
+
+    splash->showMessage("Calibrating wheel and moving to center...", Qt::AlignBottom | Qt::AlignRight);
+    driveWorker->SmCommunicator->AutoCalibrate(options.StartupFrequency, WheelParameter.CenterOffsetEnabled ?  WheelParameter.CenterOffset : 0);
+
+    splash->showMessage("Applying settings...", Qt::AlignBottom | Qt::AlignRight);
+    driveWorker->SmCommunicator->SetParameter(SMP_OSW_VELOCITY_SAMPLES, 10);
+    driveWorker->SmCommunicator->SetTorqueBandwithLimit(5);
+    driveWorker->SmCommunicator->SetPwmDutyCycle(2000);
+    driveWorker->UpdateWheelParameter();
+
+    splash->showMessage("Starting drive worker...", Qt::AlignBottom | Qt::AlignRight);
+    driveWorker->Start();
+
+    splash->showMessage("Ready!", Qt::AlignBottom | Qt::AlignRight);
 }
 
 void MainWindow::onWheelInitialized()
@@ -298,4 +337,11 @@ void MainWindow::on_action_Plugins_triggered()
 {
     PluginDialog dialog(pluginsDir.path(), pluginFileNames, this);
     dialog.exec();
+}
+
+void MainWindow::on_action_Options_triggered()
+{
+    OptionsDialog* dialog = new OptionsDialog(ApplicationSettings, this);
+    dialog->setModal(true);
+    dialog->show();
 }

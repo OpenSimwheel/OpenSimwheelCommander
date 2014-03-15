@@ -39,7 +39,6 @@ public:
 public slots:
     void updateFeedbackInfo(FEEDBACK_DATA data);
     void updateTelemetryFeedbackInfo(TelemetryFeedback feedback);
-    void onHomingCompleted(qint32 center);
 
     void onWheelInitializing();
     void onWheelInitialized();
@@ -65,6 +64,8 @@ private slots:
 
     void on_action_Plugins_triggered();
 
+    void on_action_Options_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -76,6 +77,8 @@ private:
 
     WHEEL_PARAMETER WheelParameter;
     TelemetryFeedback telemetry_feedback;
+    OSWDriveParameter driveParameter;
+    OSWOptions options;
 
     QThread* telemetryThread;
     TelemetryWorker* telemetryWorker;

@@ -36,11 +36,19 @@ public:
         return this->busHandle;
     }
 
-    bool Connect(const char* comPort, smint32 deviceAddress);
+    bool Connect(const char* comPort, smint32 deviceAddress, quint16 connectionTimeoutMs);
     void Disconnect();
 
     bool IsConnected() {
         return isConnected;
+    }
+
+    bool IsReady() {
+        return isReady;
+    }
+
+    void ClearFaults() {
+        this->SetParameter(SMP_FAULTS, 0); //clear faults if any
     }
 
     SM_STATUS SetParameter(const smint16 parameterId, smint32 value);
@@ -53,8 +61,28 @@ public:
 
     void InitializeLowLevelCommunication(smint32 setParameterId, smint32 returnParameterId);
 
+    void AutoCalibrate(smint32 homingFrequency, smint32 centerOffset);
+
+    void Shutdown() {
+        this->SetTorque(0);
+        this->DisableDrive();
+        this->Disconnect();
+    }
+
     void EnableDrive();
     void DisableDrive();
+
+    void SetPwmDutyCycle(smint32 dutyCycle) {
+        this->SetParameter(SMP_PWM_DUTYCYCLE, dutyCycle);
+    }
+
+    void SetTorqueBandwithLimit(smint32 torqueBandwidthLimit) {
+        this->SetParameter(SMP_TORQUE_LPF_BANDWIDTH, torqueBandwidthLimit);
+    }
+
+    void SetTorque(smint32 torque) {
+        this->SetParameter(SMP_OSW_TORQUE_SETPOINT, torque);
+    }
 
     //blocking call
     void WaitForDriveReady() {
@@ -64,6 +92,8 @@ public:
         while (bool(status & STAT_INITIALIZED) == false) {
             this->GetParameter(SMP_STATUS, &status);
         }
+
+        isReady = true;
     }
 
     void LoadSettings(WheelSettings settings);
@@ -73,6 +103,7 @@ private:
     smint32 deviceAddress;
     smbus busHandle;
     bool isConnected;
+    bool isReady;
 
     smint32 nul;
 
