@@ -54,10 +54,13 @@ void JoystickManager::UpdateRelativePosition(double posPct) {
     if (posPct > 1)  posPct = 1;
     if (posPct < -1) posPct = -1;
 
-//    qint32 rangeHalf = (AxisMaxValue - AxisMinValue) / 2;
-
-//    qint32 pos = (qint32)((posPct * rangeHalf) + rangeHalf);
     qint32 pos = (qint32(posPct *16384 ) + 16384);
+
+    this->UpdatePosition(pos);
+}
+
+void JoystickManager::UpdatePosition(qint32 pos) {
+    if (!isAquired) return;
 
     report.wAxisX = pos;
     UpdateVJD(DeviceId, &report);

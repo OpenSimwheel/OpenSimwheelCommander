@@ -1,0 +1,6 @@
+{
+    "name" : "RBR ForceFeedback Plugin",
+    "version" : "0.0.4a-debug",
+    "features": "ForceFeedback",
+    "dependencies" : []
+}

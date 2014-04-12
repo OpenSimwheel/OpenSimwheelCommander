@@ -19,6 +19,7 @@
 #include "Dialogs/OptionsDialog.h"
 
 #include "TelemetryPlugins/TelemetryPluginInterface.h"
+#include "TelemetryPlugins/NullTelemetryPlugin.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,8 +27,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     MainWindow::hide();
-
-    count = 0;
 
     ApplicationSettings = new QSettings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName());
 
@@ -85,6 +84,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->vjoy_dockWidget->hide();
     ui->debugInformation_dockWidget->hide();
 
+    nullTelemetryPlugin = new NullTelemetryPlugin();
+
+    ui->settingsWidget->setLayout(new QGridLayout);
     LoadPlugins();
 }
 
@@ -103,6 +105,7 @@ void MainWindow::updateTelemetryFeedbackInfo(TelemetryFeedback feedback)
         ui->lbl_telemetry_angle->setText(QString::number(feedback.angle, 'f', 2) + " °");
         ui->lbl_telemetry_lockToLock->setText(QString::number(feedback.steeringWheelLock, 'f', 2) + " °");
         ui->lbl_telemetry_damper->setText(QString::number(feedback.damperPct * 100, 'f', 2) + " %");
+        ui->lbl_debug1->setText(feedback.debug1);
     } else {
         ui->groupBox_telemetryDebug->setEnabled(false);
         ui->lbl_telemetry_status->setText("disconnected");
@@ -117,6 +120,7 @@ void MainWindow::updateTelemetryFeedbackInfo(TelemetryFeedback feedback)
 
 void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
 {
+    static quint64 count = 0;
     static quint32 countAboveTarget = 0;
     static quint32 timeouts = 0;
 
@@ -124,9 +128,6 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
         min = data.calculationBenchmark;
         max = min;
         sum = data.calculationBenchmark;
-
-        if (data.lastLoopBenchmark > MAX_LATENCY)
-            countAboveTarget++;
     } else {
         if (data.calculationBenchmark < min)
             min = data.calculationBenchmark;
@@ -136,13 +137,15 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
         sum += data.calculationBenchmark;
 
         avg = sum / count;
+
+        if (data.lastLoopBenchmark > MAX_LATENCY)
+            if (data.lastLoopBenchmark < driveParameter.CommunicationTimeoutMs)
+                countAboveTarget = countAboveTarget + 1;
+            else
+                timeouts = timeouts + 1;
     }
 
-    if (data.lastLoopBenchmark > MAX_LATENCY)
-        if (data.lastLoopBenchmark < driveParameter.CommunicationTimeoutMs)
-            countAboveTarget = countAboveTarget + 1;
-        else
-            timeouts = timeouts + 1;
+
 
     ui->lbl_position->setText(QString::number(data.position));
     ui->lbl_torque->setText(QString::number(data.torque));
@@ -156,7 +159,7 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
 
     ui->statusBar->showMessage("Loop Frequency: " + QString::number(1000 / (data.lastLoopBenchmark / 1000.0d), 'f', 2) + "Hz");
 
-    count++;
+    count = count + 1;
 }
 
 
@@ -238,7 +241,7 @@ void MainWindow::onWheelInitializing()
     splash->showMessage("Applying settings...", Qt::AlignBottom | Qt::AlignRight);
     driveWorker->SmCommunicator->SetParameter(SMP_OSW_VELOCITY_SAMPLES, 10);
     driveWorker->SmCommunicator->SetTorqueBandwithLimit(5);
-    driveWorker->SmCommunicator->SetPwmDutyCycle(2000);
+    driveWorker->SmCommunicator->SetPwmDutyCycle(1700);
     driveWorker->UpdateWheelParameter();
 
     splash->showMessage("Starting drive worker...", Qt::AlignBottom | Qt::AlignRight);
@@ -306,11 +309,9 @@ void MainWindow::LoadPlugins() {
     pluginsDir = QApplication::applicationDirPath();
     pluginsDir.cd("plugins");
 
-//    if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
-//        pluginsDir.cdUp();
+    ui->comboBox_plugins->addItem("--- Please choose ---");
 
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
-        //ui->comboBox_plugins->addItem(fileName);
 
         QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
         QObject *plugin = loader.instance();
@@ -325,11 +326,45 @@ void MainWindow::LoadPlugins() {
                 QString name = metaData.value("name").toString();
                 QString version = metaData.value("version").toString();
 
-                ui->comboBox_plugins->addItem(name + " - v" + version);
-                telemetryWorker->SetPlugin(iTelemetryPlugin);
+                ui->comboBox_plugins->addItem(name + " - v" + version, pluginsDir.absoluteFilePath(fileName));
+                loader.unload();
             }
 
         }
+    }
+
+
+    QString lastActivePluginPath = ApplicationSettings->value("Program/LastActivePlugin", "").toString();
+
+    if (lastActivePluginPath != "") {
+        int idx = ui->comboBox_plugins->findData(lastActivePluginPath);
+        ui->comboBox_plugins->setCurrentIndex(idx);
+    }
+}
+
+void MainWindow::ActivatePlugin(QString pluginPath) {
+    telemetryWorker->DeleteCurrentPlugin();
+
+
+    QPluginLoader loader(pluginPath);
+    QObject *plugin = loader.instance();
+
+    if (plugin) {
+        TelemetryPluginInterface *iTelemetryPlugin = qobject_cast<TelemetryPluginInterface *>(plugin);
+
+        if (iTelemetryPlugin) {
+            telemetryWorker->SetPlugin(iTelemetryPlugin);
+
+//            QMessageBox::information(this, "Plugin successfully loaded", "Successfully loaded plugin: " + pluginPath);
+            QWidget* settingsWidget = iTelemetryPlugin->GetSettingsWidget();
+
+            ui->settingsWidget->layout()->addWidget(settingsWidget);
+            settingsWidget->show();
+
+            ApplicationSettings->setValue("Program/LastActivePlugin", pluginPath);
+        }
+    } else {
+        QMessageBox::warning(this, "Couldn't load plugin", "Couldn't load Plugin from path: " + pluginPath);
     }
 }
 
@@ -344,4 +379,26 @@ void MainWindow::on_action_Options_triggered()
     OptionsDialog* dialog = new OptionsDialog(ApplicationSettings, this);
     dialog->setModal(true);
     dialog->show();
+}
+
+void MainWindow::on_comboBox_plugins_currentIndexChanged(int index)
+{
+    // clear widgets
+    QList<QWidget *> widgets = ui->settingsWidget->findChildren<QWidget *>();
+    foreach (QWidget *widget, widgets) {
+        widget->close();
+    }
+//    telemetryWorker->DeleteCurrentPlugin();
+
+    if (index <= 0) {
+//        telemetryWorker->SetPlugin(nullTelemetryPlugin);
+
+         ApplicationSettings->setValue("Program/LastActivePlugin", "");
+        return;
+    }
+
+
+    QString pluginPath = ui->comboBox_plugins->itemData(index).toString();
+
+    ActivatePlugin(pluginPath);
 }

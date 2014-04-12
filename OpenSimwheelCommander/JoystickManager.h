@@ -36,6 +36,7 @@ public:
 
     bool Aquire(unsigned int deviceId);
     void UpdateRelativePosition(double posPct);
+    void UpdatePosition(qint32 pos);
     void Center();
 private:
     VjdStat DeviceStatus;

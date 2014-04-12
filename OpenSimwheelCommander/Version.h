@@ -2,7 +2,7 @@
 #define VERSION_H
 
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 2
+#define VERSION_MINOR 4
 #define VERSION_BUILD 1
 #define VERSION_QFE 0
 //#define VERSION_BUILD_DATE "24/05/2005"

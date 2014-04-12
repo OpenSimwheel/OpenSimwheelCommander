@@ -4,6 +4,9 @@
 #include "TelemetryPlugins\TelemetryPluginInterface.h"
 #include <QtCore>
 #include <QtDebug>
+#include <Settings/SettingsGroupBox.h>
+#include <QQueue>
+#include <QSettings>
 
 class iRacingTelemetryPlugin : public QObject, TelemetryPluginInterface
 {
@@ -14,6 +17,8 @@ class iRacingTelemetryPlugin : public QObject, TelemetryPluginInterface
 public:
     iRacingTelemetryPlugin();
     TelemetryFeedback Update();
+    QWidget* GetSettingsWidget();
+    void Shutdown();
 
 private:
     char *g_data = NULL;
@@ -22,10 +27,16 @@ private:
     int g_steeringwheel_torque_offset;
     int g_steeringwheel_angle_offset;
     int g_steeringwheel_torquepct_offset;
+    int g_steeringwheel_torquepctstops_offset;
     int g_steeringwheel_anglemax_offset;
     int g_steeringwheel_damperpct_offset;
 
+    QQueue<float> torqueQueue;
+    QSettings SavedSettings;
+
     TelemetryFeedback feedback;
+    PluginSettings* settings;
+    SettingsGroupBox* settingsGroupBox;
 };
 
 #endif // IRACINGTELEMETRYPLUGIN_H

@@ -1,8 +1,12 @@
 #ifndef TELEMETRYWORKER_H
 #define TELEMETRYWORKER_H
 
+#define STAT_RUNNING 1
+#define STAT_STOPPED 0
+
 #include <QObject>
 #include <TelemetryPlugins/TelemetryPluginInterface.h>
+#include <QMutex>
 
 class TelemetryWorker : public QObject
 {
@@ -10,14 +14,10 @@ class TelemetryWorker : public QObject
 public:
     explicit TelemetryWorker(QObject *parent = 0);
 
-    void SetPlugin(TelemetryPluginInterface* iTelemetryPlugin) {
-        telemetryPlugin = iTelemetryPlugin;
-    }
-
+    void SetPlugin(TelemetryPluginInterface* iTelemetryPlugin);
+    void DeleteCurrentPlugin();
 private:
-    TelemetryPluginInterface *telemetryPlugin;
-
-
+    TelemetryPluginInterface* telemetryPlugin;
 signals:
     void telemetry_feedback_received(TelemetryFeedback telemetryFeedback);
 

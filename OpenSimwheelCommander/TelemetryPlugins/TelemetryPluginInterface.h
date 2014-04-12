@@ -2,6 +2,9 @@
 #define TELEMETRYPLUGININTERFACE_H
 
 #include <QtPlugin>
+#include <QVariant>
+
+#include <QWidget>
 
 typedef struct
 {
@@ -11,6 +14,7 @@ typedef struct
     float steeringWheelLock;
     float angle;
     bool isConnected;
+    QString debug1;
 } TelemetryFeedback;
 
 Q_DECLARE_METATYPE(TelemetryFeedback)
@@ -24,6 +28,8 @@ class TelemetryPluginInterface
         virtual ~TelemetryPluginInterface() {}
 
         virtual TelemetryFeedback Update() = 0;
+        virtual QWidget* GetSettingsWidget() = 0;
+        virtual void Shutdown() = 0;
 };
 
 #define TelemetryPluginInterface_iid "net.opensimwheel.OpenSimwheelCommander.TelemetryPlugins.TelemetryPluginInterface"

@@ -12,13 +12,15 @@
 #include <Splash/IndestructableSplashScreen.h>
 #include <JoystickManager.h>
 
+#include <TelemetryPlugins/NullTelemetryPlugin.h>
+
 #include <QStringList>
 #include <QDir>
 
 #ifdef USE_FAST_COMMAND
     #define MAX_LATENCY 2100
 #else
-    #define MAX_LATENCY 4100
+    #define MAX_LATENCY 5200
 #endif
 
 namespace Ui {
@@ -66,10 +68,11 @@ private slots:
 
     void on_action_Options_triggered();
 
+    void on_comboBox_plugins_currentIndexChanged(int index);
+
 private:
     Ui::MainWindow *ui;
 
-    qint64 count;
     qint64 avg;
     qint64 min;
     qint64 max;
@@ -93,8 +96,11 @@ private:
     void RestoreLayout();
 
     void LoadPlugins();
+    void ActivatePlugin(QString pluginPath);
 
     IndestructableSplashScreen *splash;
+
+    NullTelemetryPlugin* nullTelemetryPlugin;
 signals:
 };
 

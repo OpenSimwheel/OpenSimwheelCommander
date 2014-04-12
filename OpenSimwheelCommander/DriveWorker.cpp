@@ -47,7 +47,7 @@ DriveWorker::~DriveWorker()
 
 void DriveWorker::process()
 {
-    const qint64 LOOP_TIMEOUT = 1000; // In µs
+    const qint64 LOOP_TIMEOUT = 5000; // In µs
     qint64 lastLoop = 0, frameStartCounter = 0;
     FEEDBACK_DATA feedback = FEEDBACK_DATA();
     WHEEL_PARAMETER lastWheelParameter = *WheelParameter;
@@ -56,8 +56,6 @@ void DriveWorker::process()
 
     if (!Joystick->Aquire(1))
         return;
-
-
 
     emit initialized();
 
@@ -81,12 +79,14 @@ void DriveWorker::process()
 // communication BEGIN
        qint64 stamp1 = GetCounter();
        SmCommunicator->AppendCommandToQueue(SMPCMD_24B, torque);
-       SmCommunicator->ExecuteFastCommandQueue();
+//       SmCommunicator->ExecuteFastCommandQueue();
+       SmCommunicator->ExecuteCommandQueue();
        SmCommunicator->GetQueuedReturnValue(&pos);
        qint64 stamp2 = GetCounter();
 // communication END
 
-       Joystick->UpdateRelativePosition(pos / (wheelParameter.DegreesOfRotation * (10000.0d/360) / 2));
+//       Joystick->UpdateRelativePosition(pos / (wheelParameter.DegreesOfRotation * (10000.0d/360) / 2));
+       Joystick->UpdatePosition(pos);
 
        feedback.calculationBenchmark = stamp2 - stamp1;
        feedback.torque = torque;
@@ -129,7 +129,7 @@ qint64 DriveWorker::GetCounter()
 void DriveWorker::UpdateWheelParameter()
 {
     WheelSettings settings = WheelSettings();
-    settings.HardstopsPosition = smint32((WheelParameter->DegreesOfRotation * (10000/360.0d)) / 2.0d);
+    settings.HardstopsPosition = smint32(WheelParameter->DegreesOfRotation);
     settings.DampingStrength = WheelParameter->DampingEnabled ? smint32(WheelParameter->DampingStrength) : 0;
     settings.CenterSpringStrength = WheelParameter->CenterSpringEnabled ? smint32(WheelParameter->CenterSpringStrength) : 0;
     settings.OverallStrength = smint32(WheelParameter->OverallStrength);

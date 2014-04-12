@@ -1,6 +1,6 @@
 {
     "name" : "iRacingTelemetry Plugin",
-    "version" : "0.1.7",
-    "features": "ForceFeedback",
+    "version" : "0.2.2",
+    "features": "ForceFeedback, Settings",
     "dependencies" : []
 }

@@ -53,7 +53,8 @@ HEADERS  += \
     JoystickManager.h \
     TelemetryPlugins/TelemetryPluginInterface.h \
     Dialogs/PluginDialog.h \
-    Dialogs/OptionsDialog.h
+    Dialogs/OptionsDialog.h \
+    TelemetryPlugins/NullTelemetryPlugin.h
 
 FORMS    += \
     MainWindow.ui \
@@ -62,7 +63,6 @@ FORMS    += \
     Dialogs/JoystickConfigurationDialog.ui \
     Dialogs/OptionsDialog.ui
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/vJoySDK/lib/ -lvJoyInterface
 
 
 
@@ -83,9 +83,16 @@ OTHER_FILES += \
 RC_FILE = OpenSimwheelCommander.rc
 
 
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/vJoySDK/lib/ -lvJoyInterface
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/vJoySDK/lib/ -lvJoyInterface
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_iracing
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_iracingd
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rbr
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rbr
+
+
 
 INCLUDEPATH += $$PWD/../TelemetryPlugins/plugins
 DEPENDPATH += $$PWD/../TelemetryPlugins/plugins
