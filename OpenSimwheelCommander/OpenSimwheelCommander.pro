@@ -92,6 +92,9 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plu
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rbr
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rbr
 
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rfactor
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rfactor
+
 
 
 INCLUDEPATH += $$PWD/../TelemetryPlugins/plugins

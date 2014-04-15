@@ -19,6 +19,7 @@ public:
     TelemetryFeedback Update();
     QWidget* GetSettingsWidget();
     void Shutdown();
+    void Startup();
 
 private:
     char *g_data = NULL;

@@ -30,6 +30,7 @@ class TelemetryPluginInterface
         virtual TelemetryFeedback Update() = 0;
         virtual QWidget* GetSettingsWidget() = 0;
         virtual void Shutdown() = 0;
+        virtual void Startup() = 0;
 };
 
 #define TelemetryPluginInterface_iid "net.opensimwheel.OpenSimwheelCommander.TelemetryPlugins.TelemetryPluginInterface"

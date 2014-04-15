@@ -9,6 +9,7 @@ class NullTelemetryPlugin : public TelemetryPluginInterface
     public:
         TelemetryFeedback Update() {
             TelemetryFeedback feedback = TelemetryFeedback();
+            feedback.torquePct = 0;
             feedback.isConnected = false;
             Sleep(500);
             return feedback;
@@ -18,9 +19,8 @@ class NullTelemetryPlugin : public TelemetryPluginInterface
             return new QGroupBox("No Plugin");
         }
 
-        void Shutdown() {
-
-        }
+        void Shutdown() {}
+        void Startup() {}
 };
 
 #endif // NULLTELEMETRYPLUGIN_H

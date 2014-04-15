@@ -9,10 +9,15 @@ TelemetryWorker::TelemetryWorker(QObject *parent) :
 }
 
 void TelemetryWorker::SetPlugin(TelemetryPluginInterface* iTelemetryPlugin) {
+    if (telemetryPlugin != NULL)
+        telemetryPlugin->Shutdown();
+
     telemetryPlugin = iTelemetryPlugin;
+    telemetryPlugin->Startup();
 }
 
 void TelemetryWorker::DeleteCurrentPlugin() {
+//    telemetryPlugin->Shutdown();
     telemetryPlugin = NULL;
 }
 

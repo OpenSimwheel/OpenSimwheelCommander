@@ -38,6 +38,10 @@ void iRacingTelemetryPlugin::Shutdown() {
 
 }
 
+void iRacingTelemetryPlugin::Startup() {
+
+}
+
 TelemetryFeedback iRacingTelemetryPlugin::Update()
 {
     if(irsdk_waitForDataReady(g_timeout, g_data))

@@ -391,7 +391,7 @@ void MainWindow::on_comboBox_plugins_currentIndexChanged(int index)
 //    telemetryWorker->DeleteCurrentPlugin();
 
     if (index <= 0) {
-//        telemetryWorker->SetPlugin(nullTelemetryPlugin);
+        telemetryWorker->SetPlugin(nullTelemetryPlugin);
 
          ApplicationSettings->setValue("Program/LastActivePlugin", "");
         return;
