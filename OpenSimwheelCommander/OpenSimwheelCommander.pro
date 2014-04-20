@@ -86,14 +86,23 @@ RC_FILE = OpenSimwheelCommander.rc
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libs/vJoySDK/lib/ -lvJoyInterface
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libs/vJoySDK/lib/ -lvJoyInterface
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_iracing
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_iracingd
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_iracing
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_iracingd
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rbr
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rbr
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rbr
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rbrd
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rfactor
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rfactor
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rfactor
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rfactord
+
+##win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rfactor2
+##else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_rfactor2d
+
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_test
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_testd
+
+##win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_assettocorsa
+##else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../TelemetryPlugins/plugins/ -losw_plugin_assettocorsad
 
 
 

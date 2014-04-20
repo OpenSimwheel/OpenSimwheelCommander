@@ -26,6 +26,7 @@ DriveStageConfigDialog::DriveStageConfigDialog(QSettings* settings, OSWDrivePara
     ui->comPortComboBox->setCurrentText(driveParameter->ComPort);
     ui->deviceAddressSpinBox->setValue(driveParameter->DeviceAddress);
     ui->connectionTimeoutMsSpinBox->setValue(driveParameter->CommunicationTimeoutMs);
+    ui->useFastCommunicationCheckBox->setChecked(driveParameter->UseFastCommunication);
 }
 
 DriveStageConfigDialog::~DriveStageConfigDialog()
@@ -38,9 +39,11 @@ void DriveStageConfigDialog::on_buttonBox_accepted()
     driveParameter->CommunicationTimeoutMs = ui->connectionTimeoutMsSpinBox->value();
     driveParameter->ComPort = ui->comPortComboBox->currentText().toStdString().c_str();
     driveParameter->DeviceAddress = ui->deviceAddressSpinBox->value();
+    driveParameter->UseFastCommunication = ui->useFastCommunicationCheckBox->isChecked();
 
     this->settings->setValue("DriveStage/ComPort", driveParameter->ComPort);
     this->settings->setValue("DriveStage/DeviceAddress", driveParameter->DeviceAddress);
     this->settings->setValue("DriveStage/CommunicationTimeoutMs", driveParameter->CommunicationTimeoutMs);
+    this->settings->setValue("DriveStage/UseFastCommunication", driveParameter->UseFastCommunication);
     this->settings->sync();
 }

@@ -14,6 +14,7 @@ typedef struct
     float steeringWheelLock;
     float angle;
     bool isConnected;
+    qint64 deltaT;
     QString debug1;
 } TelemetryFeedback;
 

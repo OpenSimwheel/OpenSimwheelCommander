@@ -39,6 +39,7 @@ typedef struct
     const char* ComPort;
     qint32 DeviceAddress;
     quint16 CommunicationTimeoutMs;
+    bool UseFastCommunication;
 } OSWDriveParameter;
 
 Q_DECLARE_METATYPE(OSWDriveParameter)

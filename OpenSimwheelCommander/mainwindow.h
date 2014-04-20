@@ -17,12 +17,6 @@
 #include <QStringList>
 #include <QDir>
 
-#ifdef USE_FAST_COMMAND
-    #define MAX_LATENCY 2100
-#else
-    #define MAX_LATENCY 5200
-#endif
-
 namespace Ui {
 class MainWindow;
 }
@@ -97,6 +91,13 @@ private:
 
     void LoadPlugins();
     void ActivatePlugin(QString pluginPath);
+
+
+    void InitializeDriveParameter();
+    void InitializeWheelParameter();
+
+    void InitializeDriveWorker();
+    void InitializeTelemetryWorker();
 
     IndestructableSplashScreen *splash;
 

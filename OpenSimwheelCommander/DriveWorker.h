@@ -64,6 +64,7 @@ signals:
     void telemetry_updated(TelemetryFeedback TelemetryFeedbackData);
 public slots:
     void process();
+    void shutdown();
 };
 
 

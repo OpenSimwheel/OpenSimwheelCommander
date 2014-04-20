@@ -1,6 +1,5 @@
 #include "driveworker.h"
 
-#include "qelapsedtimer.h"
 #include "simplemotion.h"
 
 #include "windows.h"
@@ -44,13 +43,25 @@ DriveWorker::~DriveWorker()
     SmCommunicator->Shutdown();
 }
 
+void DriveWorker::shutdown()
+{
+    SmCommunicator->Shutdown();
+}
 
 void DriveWorker::process()
 {
-    const qint64 LOOP_TIMEOUT = 5000; // In µs
+
+    qint64 LOOP_TIMEOUT = 4000; // In µs
+    OSWDriveParameter driveParameter = *DriveParameter;
+    if (driveParameter.UseFastCommunication) {
+        LOOP_TIMEOUT = 2000; // In µs
+    }
+
+
     qint64 lastLoop = 0, frameStartCounter = 0;
     FEEDBACK_DATA feedback = FEEDBACK_DATA();
     WHEEL_PARAMETER lastWheelParameter = *WheelParameter;
+
 
     emit initializing();
 
@@ -74,13 +85,20 @@ void DriveWorker::process()
        WHEEL_PARAMETER wheelParameter = *WheelParameter;
        TelemetryFeedback telemetryFeedback = *TelemetryFeedbackData;
 
+
+
        qint32 torque = ffbwheel.calculateTorque(telemetryFeedback);
 
 // communication BEGIN
        qint64 stamp1 = GetCounter();
        SmCommunicator->AppendCommandToQueue(SMPCMD_24B, torque);
-//       SmCommunicator->ExecuteFastCommandQueue();
-       SmCommunicator->ExecuteCommandQueue();
+
+       if (driveParameter.UseFastCommunication) {
+           SmCommunicator->ExecuteFastCommandQueue();
+       } else {
+           SmCommunicator->ExecuteCommandQueue();
+       }
+
        SmCommunicator->GetQueuedReturnValue(&pos);
        qint64 stamp2 = GetCounter();
 // communication END

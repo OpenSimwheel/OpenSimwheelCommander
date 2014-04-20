@@ -13,6 +13,10 @@
 #include "QMessageBox"
 #include "Version.h"
 
+#include "math.h"
+
+#include "qqueue.h"
+
 #include "QPluginLoader"
 
 #include "Dialogs/PluginDialog.h"
@@ -33,48 +37,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     telemetry_feedback = TelemetryFeedback();
 
-    WheelParameter = WHEEL_PARAMETER();
-    WheelParameter.CenterSpringStrength = ApplicationSettings->value("WheelEffects/CenterSpringStrength", 0).toInt();
-    WheelParameter.DegreesOfRotation = ApplicationSettings->value("WheelParameter/DegreesOfRotation", 180).toInt();
-    WheelParameter.OverallStrength = ApplicationSettings->value("WheelEffects/OverallStrength", 30).toInt();
-    WheelParameter.DampingStrength = ApplicationSettings->value("WheelEffects/DampingStrength", 20).toInt();
-    WheelParameter.CenterOffset = ApplicationSettings->value("WheelParameter/CenterOffset", 0).toInt();
-    WheelParameter.DampingEnabled = ApplicationSettings->value("WheelEffects/DampingEnabled", true).toBool();
-    WheelParameter.CenterSpringEnabled = ApplicationSettings->value("WheelEffects/CenterSpringEnabled", false).toBool();
-    WheelParameter.CenterOffsetEnabled = ApplicationSettings->value("WheelParameter/CenterOffsetEnabled", false).toBool();
-
-
-    driveParameter = OSWDriveParameter();
-    driveParameter.ComPort = ApplicationSettings->value("DriveStage/ComPort", "COM8").toString().toStdString().c_str();
-    driveParameter.DeviceAddress = ApplicationSettings->value("DriveStage/DeviceAddress", 1).toInt();
-    driveParameter.CommunicationTimeoutMs = ApplicationSettings->value("DriveStage/CommunicationTimeoutMs", 16).toInt();
+    InitializeWheelParameter();
+    InitializeDriveParameter();
 
     options = OSWOptions();
     options.StartupFrequency = ApplicationSettings->value("Settings/HomingFrequency", 1).toInt();
 
-    driveWorker = new DriveWorker(&driveParameter, &WheelParameter, &telemetry_feedback, &options);
-    driveThread = new QThread;
-    driveWorker->moveToThread(driveThread);
-    connect(driveThread, SIGNAL(started()), driveWorker, SLOT(process()));
-    connect(driveWorker, SIGNAL(feedback_received(FEEDBACK_DATA)), this, SLOT(updateFeedbackInfo(FEEDBACK_DATA)));
-    connect(driveThread, SIGNAL(finished()), driveWorker, SLOT(deleteLater()));
-    connect(driveThread, SIGNAL(finished()), driveThread, SLOT(deleteLater()));
-    connect(driveWorker, SIGNAL(initializing()), this, SLOT(onWheelInitializing()));
-    connect(driveWorker, SIGNAL(initialized()), this, SLOT(onWheelInitialized()));
-    connect(driveWorker->Joystick, SIGNAL(Initialized(JoystickDriverInfo,JoystickDeviceInfo)), this, SLOT(onJoystickInitialized(JoystickDriverInfo,JoystickDeviceInfo)));
-    connect(driveWorker->Joystick, SIGNAL(PositionUpdated(qint32)), this, SLOT(onJoystickPositionUpdated(qint32)));
-    driveThread->start(QThread::TimeCriticalPriority);
+    InitializeDriveWorker();
+    InitializeTelemetryWorker();
 
-
-    telemetryWorker = new TelemetryWorker;
-    telemetryThread = new QThread;
-    telemetryWorker->moveToThread(telemetryThread);
-    connect(telemetryThread, SIGNAL(started()), telemetryWorker, SLOT(process()));
-    connect(telemetryWorker, SIGNAL(telemetry_feedback_received(TelemetryFeedback)), this, SLOT(updateTelemetryFeedbackInfo(TelemetryFeedback)));
-    connect(telemetryThread, SIGNAL(finished()), telemetryWorker, SLOT(deleteLater()));
-    connect(telemetryThread, SIGNAL(finished()), telemetryThread, SLOT(deleteLater()));
-
-    telemetryThread->start(QThread::HighPriority);
 
     ui->menu_View->addAction(ui->debugInformation_dockWidget->toggleViewAction());
     ui->menu_View->addAction(ui->vjoy_dockWidget->toggleViewAction());
@@ -90,22 +61,98 @@ MainWindow::MainWindow(QWidget *parent) :
     LoadPlugins();
 }
 
+void MainWindow::InitializeDriveWorker()
+{
+    driveWorker = new DriveWorker(&driveParameter, &WheelParameter, &telemetry_feedback, &options);
+    driveThread = new QThread;
+    driveWorker->moveToThread(driveThread);
+    connect(driveThread, SIGNAL(started()), driveWorker, SLOT(process()));
+    connect(driveWorker, SIGNAL(feedback_received(FEEDBACK_DATA)), this, SLOT(updateFeedbackInfo(FEEDBACK_DATA)));
+    connect(driveThread, SIGNAL(finished()), driveWorker, SLOT(deleteLater()));
+    connect(driveThread, SIGNAL(finished()), driveThread, SLOT(deleteLater()));
+    connect(driveWorker, SIGNAL(initializing()), this, SLOT(onWheelInitializing()));
+    connect(driveWorker, SIGNAL(initialized()), this, SLOT(onWheelInitialized()));
+    connect(driveWorker->Joystick, SIGNAL(Initialized(JoystickDriverInfo,JoystickDeviceInfo)), this, SLOT(onJoystickInitialized(JoystickDriverInfo,JoystickDeviceInfo)));
+    connect(driveWorker->Joystick, SIGNAL(PositionUpdated(qint32)), this, SLOT(onJoystickPositionUpdated(qint32)));
+    driveThread->start(QThread::TimeCriticalPriority);
+}
+
+void MainWindow::InitializeTelemetryWorker()
+{
+    telemetryWorker = new TelemetryWorker;
+    telemetryThread = new QThread;
+    telemetryWorker->moveToThread(telemetryThread);
+    connect(telemetryThread, SIGNAL(started()), telemetryWorker, SLOT(process()));
+    connect(telemetryWorker, SIGNAL(telemetry_feedback_received(TelemetryFeedback)), this, SLOT(updateTelemetryFeedbackInfo(TelemetryFeedback)));
+    connect(telemetryThread, SIGNAL(finished()), telemetryWorker, SLOT(Shutdown()));
+    connect(telemetryThread, SIGNAL(finished()), telemetryWorker, SLOT(deleteLater()));
+    connect(telemetryThread, SIGNAL(finished()), telemetryThread, SLOT(deleteLater()));
+    telemetryThread->start(QThread::HighPriority);
+}
+
+void MainWindow::InitializeDriveParameter()
+{
+    driveParameter = OSWDriveParameter();
+    driveParameter.ComPort = ApplicationSettings->value("DriveStage/ComPort", "COM8").toString().toStdString().c_str();
+    driveParameter.DeviceAddress = ApplicationSettings->value("DriveStage/DeviceAddress", 1).toInt();
+    driveParameter.CommunicationTimeoutMs = ApplicationSettings->value("DriveStage/CommunicationTimeoutMs", 16).toInt();
+    driveParameter.UseFastCommunication = ApplicationSettings->value("DriveStage/UseFastCommunication", false).toBool();
+}
+
+void MainWindow::InitializeWheelParameter()
+{
+    WheelParameter = WHEEL_PARAMETER();
+    WheelParameter.CenterSpringStrength = ApplicationSettings->value("WheelEffects/CenterSpringStrength", 0).toInt();
+    WheelParameter.DegreesOfRotation = ApplicationSettings->value("WheelParameter/DegreesOfRotation", 180).toInt();
+    WheelParameter.OverallStrength = ApplicationSettings->value("WheelEffects/OverallStrength", 30).toInt();
+    WheelParameter.DampingStrength = ApplicationSettings->value("WheelEffects/DampingStrength", 20).toInt();
+    WheelParameter.CenterOffset = ApplicationSettings->value("WheelParameter/CenterOffset", 0).toInt();
+    WheelParameter.DampingEnabled = ApplicationSettings->value("WheelEffects/DampingEnabled", true).toBool();
+    WheelParameter.CenterSpringEnabled = ApplicationSettings->value("WheelEffects/CenterSpringEnabled", false).toBool();
+    WheelParameter.CenterOffsetEnabled = ApplicationSettings->value("WheelParameter/CenterOffsetEnabled", false).toBool();
+}
+
 void MainWindow::updateTelemetryFeedbackInfo(TelemetryFeedback feedback)
 {
     this->telemetry_feedback = feedback;
 
+    static QQueue<float> refreshRateQueue = QQueue<float>();
+
     bool isConnected = feedback.isConnected;
 
     if (isConnected) {
+        float refreshRate = (1.0f / (feedback.deltaT / 1000000.0f));
+
+
+        if (refreshRateQueue.count() > 19) {
+            refreshRateQueue.takeFirst();
+        }
+
+        if (refreshRateQueue.count() < 20) {
+            refreshRateQueue.append(refreshRate);
+        }
+
+        float refreshRateSum = 0;
+
+        for (int i = 0; i < refreshRateQueue.count(); i++) {
+            refreshRateSum += refreshRateQueue.value(i);
+        }
+
+        float refreshRateAvg = (refreshRateSum / refreshRateQueue.count());
+
+
+
         ui->lbl_telemetry_status->setText("connected");
         ui->groupBox_telemetryDebug->setEnabled(true);
 
-        ui->lbl_telemetry_torque->setText(QString::number(feedback.torque, 'f', 6) + " Nm");
+        ui->lbl_telemetry_torque->setText(QString::number(feedback.torque, 'f', 2) + " Nm");
         ui->lbl_telemetry_torquePct->setText(QString::number(feedback.torquePct * 100, 'f', 2) + " %");
         ui->lbl_telemetry_angle->setText(QString::number(feedback.angle, 'f', 2) + " °");
         ui->lbl_telemetry_lockToLock->setText(QString::number(feedback.steeringWheelLock, 'f', 2) + " °");
         ui->lbl_telemetry_damper->setText(QString::number(feedback.damperPct * 100, 'f', 2) + " %");
         ui->lbl_debug1->setText(feedback.debug1);
+        ui->label_deltaT->setText(QString::number(feedback.deltaT) + " µs");
+        ui->label_refreshRate->setText(QString::number(round(refreshRateAvg)) + " Hz");
     } else {
         ui->groupBox_telemetryDebug->setEnabled(false);
         ui->lbl_telemetry_status->setText("disconnected");
@@ -114,6 +161,8 @@ void MainWindow::updateTelemetryFeedbackInfo(TelemetryFeedback feedback)
         ui->lbl_telemetry_angle->setText("-");
         ui->lbl_telemetry_lockToLock->setText("-");
         ui->lbl_telemetry_damper->setText("-");
+        ui->label_deltaT->setText("∞");
+        ui->label_refreshRate->setText("-");
     }
 
 }
@@ -138,14 +187,18 @@ void MainWindow::updateFeedbackInfo(FEEDBACK_DATA data)
 
         avg = sum / count;
 
-        if (data.lastLoopBenchmark > MAX_LATENCY)
+        qint64 maxLatency = 4200;
+
+        if (driveParameter.UseFastCommunication) {
+            maxLatency = 2300;
+        }
+
+        if (data.lastLoopBenchmark > maxLatency)
             if (data.lastLoopBenchmark < driveParameter.CommunicationTimeoutMs)
                 countAboveTarget = countAboveTarget + 1;
             else
                 timeouts = timeouts + 1;
     }
-
-
 
     ui->lbl_position->setText(QString::number(data.position));
     ui->lbl_torque->setText(QString::number(data.torque));
@@ -172,6 +225,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_Quit_triggered()
 {
+    telemetryWorker->Shutdown();
+    driveWorker->shutdown();
     this->close();
     QApplication::quit();
 }
@@ -241,7 +296,7 @@ void MainWindow::onWheelInitializing()
     splash->showMessage("Applying settings...", Qt::AlignBottom | Qt::AlignRight);
     driveWorker->SmCommunicator->SetParameter(SMP_OSW_VELOCITY_SAMPLES, 10);
     driveWorker->SmCommunicator->SetTorqueBandwithLimit(5);
-    driveWorker->SmCommunicator->SetPwmDutyCycle(1700);
+    driveWorker->SmCommunicator->SetPwmDutyCycle(2200);
     driveWorker->UpdateWheelParameter();
 
     splash->showMessage("Starting drive worker...", Qt::AlignBottom | Qt::AlignRight);
