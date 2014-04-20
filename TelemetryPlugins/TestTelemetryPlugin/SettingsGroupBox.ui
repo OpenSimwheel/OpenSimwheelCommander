@@ -42,7 +42,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>MaxForce:</string>
+         <string>Max. SteeringArmForce:</string>
         </property>
        </widget>
       </item>
@@ -52,13 +52,13 @@
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use different values for different cars. Watch the &amp;quot;Steering Shaft Torque&amp;quot; debug variable to find a good setting.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Suggestions:&lt;/span&gt;&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;* rFactor Standard Content&lt;/span&gt;: about 3000-4000&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;* BlancpainSeries2012&lt;/span&gt;: about 6000-8000&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;* the little Formula Student car&lt;/span&gt;: about 1500-2000&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="suffix">
-         <string> Newtowns</string>
+         <string> N</string>
         </property>
         <property name="minimum">
          <number>1000</number>
         </property>
         <property name="maximum">
-         <number>25000</number>
+         <number>30000</number>
         </property>
         <property name="singleStep">
          <number>500</number>
@@ -98,6 +98,13 @@
         </property>
         <property name="tickInterval">
          <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>* Higher value means less FFB</string>
         </property>
        </widget>
       </item>

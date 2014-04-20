@@ -13,7 +13,7 @@
 
 iRacingTelemetryPlugin::iRacingTelemetryPlugin() {
     g_nData = 0;
-    g_timeout = 20;
+    g_timeout = 50;
     g_steeringwheel_torque_offset = 0;
     g_steeringwheel_angle_offset = 0;
     g_steeringwheel_torquepct_offset = 0;
@@ -41,6 +41,8 @@ void iRacingTelemetryPlugin::Shutdown() {
 void iRacingTelemetryPlugin::Startup() {
 
 }
+
+static int timeouts = 0;
 
 TelemetryFeedback iRacingTelemetryPlugin::Update()
 {
@@ -150,7 +152,9 @@ TelemetryFeedback iRacingTelemetryPlugin::Update()
             }
         }
     } else { // iRacing did go away
+        timeouts = timeouts + 1;
         TelemetryFeedback nullFeedback = TelemetryFeedback();
+        nullFeedback.debug1 = QString::number(timeouts);
         nullFeedback.isConnected = false;
         return nullFeedback;
     }

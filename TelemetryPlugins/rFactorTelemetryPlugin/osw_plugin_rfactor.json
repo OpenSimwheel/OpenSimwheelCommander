@@ -1,6 +1,6 @@
 {
     "name" : "rFactor Telemetry Plugin",
-    "version" : "0.2.1",
+    "version" : "0.3.1",
     "features": "ForceFeedback",
     "dependencies" : []
 }

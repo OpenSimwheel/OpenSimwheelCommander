@@ -1,0 +1,6 @@
+{
+    "name" : "Test Telemetry Plugin",
+    "version" : "0.0.7",
+    "features": "ForceFeedback",
+    "dependencies" : []
+}

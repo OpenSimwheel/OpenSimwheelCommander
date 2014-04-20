@@ -1,5 +1,5 @@
-#ifndef RFACTORTELEMETRYPLUGIN_H
-#define RFACTORTELEMETRYPLUGIN_H
+#ifndef TESTTELEMETRYPLUGIN_H
+#define TESTTELEMETRYPLUGIN_H
 
 #include "TelemetryPlugins\TelemetryPluginInterface.h"
 #include <QtCore>
@@ -11,16 +11,16 @@
 #include "TelemetryInfo.h"
 #include "PluginSettings.h"
 
-static const wchar_t* RFACTOR_OSW_MEMMAPFILENAME     = L"Local\\rFactorOpenSimwheelMMF";
+static const wchar_t* MEMMAPFILENAME     = L"Local\\AssettoCorsaOpenSimwheel";
 
-class rFactorTelemetryPlugin : public QObject, TelemetryPluginInterface
+class TestTelemetryPlugin : public QObject, TelemetryPluginInterface
 {
     Q_INTERFACES(TelemetryPluginInterface)
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "net.opensimwheel.OpenSimwheelCommander.TelemetryPlugins.TelemetryPluginInterface" FILE "osw_plugin_rfactor.json")
+    Q_PLUGIN_METADATA(IID "net.opensimwheel.OpenSimwheelCommander.TelemetryPlugins.TelemetryPluginInterface" FILE "osw_plugin_test.json")
 
 public:
-    rFactorTelemetryPlugin();
+    TestTelemetryPlugin();
     TelemetryFeedback Update();
     QWidget* GetSettingsWidget();
     void Shutdown();
@@ -31,10 +31,6 @@ private:
     bool Initialize();
     QQueue<float> torqueQueue;
     PluginSettings* pluginSettings;
-
-    bool IsNewDataAvailable();
-    TelemetryInfo GetNewData();
-    bool WaitForNewData(int timeout);
 };
 
 #endif // RFACTORTELEMETRYPLUGIN_H
