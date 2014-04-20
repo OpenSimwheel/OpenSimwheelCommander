@@ -1,0 +1,6 @@
+{
+    "name" : "rFactor2 Telemetry Plugin",
+    "version" : "0.1.0-beta (requires build 660 or later)",
+    "features": "ForceFeedback",
+    "dependencies" : []
+}
