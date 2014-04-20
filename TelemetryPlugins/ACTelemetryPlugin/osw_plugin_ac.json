@@ -1,0 +1,6 @@
+{
+    "name" : "AssettoCorsa Telemetry Plugin",
+    "version" : "0.1.0",
+    "features": "ForceFeedback",
+    "dependencies" : []
+}
