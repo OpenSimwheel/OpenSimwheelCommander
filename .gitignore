@@ -12,13 +12,13 @@
 
 # Qt-es
 
-*.pro.user
-*.pro.user.*
+
 moc_*.cpp
 qrc_*.cpp
 Makefile
 *-build-*
 build-*/*
+build
+build/*
 bin/
 bin/*
-TelemetryPlugins/build*
