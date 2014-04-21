@@ -17,7 +17,9 @@ qrc_*.cpp
 Makefile
 *-build-*
 build-*/*
-build
+build/
 build/*
 bin/
 bin/*
+deploy/
+deploy/*
