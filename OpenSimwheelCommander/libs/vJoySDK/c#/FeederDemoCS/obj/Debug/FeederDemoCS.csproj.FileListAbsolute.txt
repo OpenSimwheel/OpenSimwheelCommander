@@ -1,6 +1,0 @@
-C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\bin\Debug\FeederDemoCS.exe
-C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\bin\Debug\FeederDemoCS.pdb
-C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\obj\Debug\ResolveAssemblyReference.cache
-C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\obj\Debug\FeederDemoCS.exe
-C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\obj\Debug\FeederDemoCS.pdb
-C:\WinDDK\vjoy-2\SDK\c#\FeederDemoCS\bin\Debug\vJoyInterfaceWrap.dll
