@@ -14,7 +14,7 @@ OptionsDialog::OptionsDialog(QSettings *settings, QWidget *parent) :
                         << "1000 Hz" << "1500 Hz" << "2200 Hz" << "3300 Hz"
      );
 
-    this->ui->comboBox->setCurrentIndex(settings->value("Program/StartupFrequency").toInt());
+    this->ui->comboBox->setCurrentIndex(settings->value("Settings/StartupFrequency").toInt());
 }
 
 OptionsDialog::~OptionsDialog()
@@ -24,6 +24,6 @@ OptionsDialog::~OptionsDialog()
 
 void OptionsDialog::on_buttonBox_accepted()
 {
-    settings->setValue("Program/StartupFrequency", ui->comboBox->currentIndex());
+    settings->setValue("Settings/StartupFrequency", ui->comboBox->currentIndex());
     settings->sync();
 }

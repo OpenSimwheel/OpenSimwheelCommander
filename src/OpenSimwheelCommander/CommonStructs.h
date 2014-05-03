@@ -36,10 +36,11 @@ Q_DECLARE_METATYPE(WHEEL_PARAMETER)
 
 typedef struct
 {
-    const char* ComPort;
+    QString ComPort;
     qint32 DeviceAddress;
     quint16 CommunicationTimeoutMs;
     bool UseFastCommunication;
+    qint32 PwmDutyCycle;
 } OSWDriveParameter;
 
 Q_DECLARE_METATYPE(OSWDriveParameter)

@@ -1,0 +1,18 @@
+======= Changelog v0.5.1 =========
+
+* Introduced new Parameter to change pwm frequency (and therefore voltage which controls speed). Settable only in %appdata%/OpenSimwheel/OpenSimwheel Commander.ini
+See: http://forum.virtualracing.org/showthread.php/90823-DIY-OpenSimwheel-NET-Selbermacher-Servo-Lenkrad?p=1896061&viewfull=1#post1896061
+* Fixed Startup-Frequency Setting (especially important for users with Aftermarket SteeringShaft
+* Some minor library fixes. You'll need the COMPLETE folder in the zip, not only the EXE.
+
+[DriveStage]
+PwmDutyCycle=3800
+
+...3800 ist die Standardspannung, welche ca. 220rpm ergibt. Wenn man mag kann man hier zwischen (sinnvolle Werte) 3000 und 4500 experimentieren. Maximum sind 8000.
+
+Berechnung der Drehzahl wie folgt:
+17000 = 220V
+220V sind ca. 1000rpm // MiGe 130STM10010, 1500 fuer den Lenze MCS12H15L
+
+gewünschte RPM * 11,33 = PwmDutyCycle // fuer den Lenze MCS12H15L
+gewünschte RPM * 17,00 = PwmDutyCycle // für den MiGe 130ST-M10010

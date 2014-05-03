@@ -36,7 +36,7 @@ public:
         return this->busHandle;
     }
 
-    bool Connect(const char* comPort, smint32 deviceAddress, quint16 connectionTimeoutMs);
+    bool Connect(QString comPort, smint32 deviceAddress, quint16 connectionTimeoutMs);
     void Disconnect();
 
     bool IsConnected() {
@@ -71,6 +71,8 @@ public:
 
     void EnableDrive();
     void DisableDrive();
+
+
 
     void SetPwmDutyCycle(smint32 dutyCycle) {
         this->SetParameter(SMP_PWM_DUTYCYCLE, dutyCycle);

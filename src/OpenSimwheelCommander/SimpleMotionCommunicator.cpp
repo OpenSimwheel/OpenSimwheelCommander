@@ -10,9 +10,9 @@ SimpleMotionCommunicator::SimpleMotionCommunicator(QObject *parent) :
     isReady = false;
 }
 
-bool SimpleMotionCommunicator::Connect(const char* comPort, smint32 deviceAddress, quint16 connectionTimeoutMs) {
+bool SimpleMotionCommunicator::Connect(QString comPort, smint32 deviceAddress, quint16 connectionTimeoutMs) {
     smSetTimeout(connectionTimeoutMs);
-    smbus handle = smOpenBus(comPort);
+    smbus handle = smOpenBus(comPort.toUtf8().data());
 
     if (handle >= 0) {
         busHandle = handle;

@@ -78,7 +78,8 @@ RESOURCES += \
     Resources/Images.qrc
 
 OTHER_FILES += \
-    OpenSimwheelCommander.rc
+    OpenSimwheelCommander.rc \
+    Changelog.txt
 
 RC_FILE = OpenSimwheelCommander.rc
 
@@ -108,6 +109,11 @@ DEPLOY_PATH = $$ROOT/deploy
 qt_dependencies.path = $$DEPLOY_PATH/
 qt_dependencies.files = $$ROOT/res/qt-bin/*
 INSTALLS += qt_dependencies
+
+#install extra files
+install_extrafiles.path = $$DEPLOY_PATH/
+install_extrafiles.files = $$ROOT/src/OpenSimwheelCommander/Changelog.txt
+INSTALLS += install_extrafiles
 
 #install app
 install_app.path = $$DEPLOY_PATH/

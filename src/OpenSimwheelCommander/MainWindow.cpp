@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     InitializeDriveParameter();
 
     options = OSWOptions();
-    options.StartupFrequency = ApplicationSettings->value("Settings/HomingFrequency", 1).toInt();
+    options.StartupFrequency = ApplicationSettings->value("Settings/StartupFrequency", 1).toInt();
 
     InitializeDriveWorker();
     InitializeTelemetryWorker();
@@ -92,7 +92,8 @@ void MainWindow::InitializeTelemetryWorker()
 void MainWindow::InitializeDriveParameter()
 {
     driveParameter = OSWDriveParameter();
-    driveParameter.ComPort = ApplicationSettings->value("DriveStage/ComPort", "COM8").toString().toStdString().c_str();
+    driveParameter.PwmDutyCycle = ApplicationSettings->value("DriveStage/PwmDutyCycle", "3800").toInt();
+    driveParameter.ComPort = ApplicationSettings->value("DriveStage/ComPort", "COM8").toString();
     driveParameter.DeviceAddress = ApplicationSettings->value("DriveStage/DeviceAddress", 1).toInt();
     driveParameter.CommunicationTimeoutMs = ApplicationSettings->value("DriveStage/CommunicationTimeoutMs", 16).toInt();
     driveParameter.UseFastCommunication = ApplicationSettings->value("DriveStage/UseFastCommunication", false).toBool();
@@ -295,7 +296,7 @@ void MainWindow::onWheelInitializing()
     splash->showMessage("Applying settings...", Qt::AlignBottom | Qt::AlignRight);
     driveWorker->SmCommunicator->SetParameter(SMP_OSW_VELOCITY_SAMPLES, 10);
     driveWorker->SmCommunicator->SetTorqueBandwithLimit(5);
-    driveWorker->SmCommunicator->SetPwmDutyCycle(2200);
+    driveWorker->SmCommunicator->SetPwmDutyCycle(driveParameter.PwmDutyCycle);
     driveWorker->UpdateWheelParameter();
 
     splash->showMessage("Starting drive worker...", Qt::AlignBottom | Qt::AlignRight);
