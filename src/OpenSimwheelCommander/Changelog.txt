@@ -1,3 +1,8 @@
+======= Changelog v0.5.2 =========
+
+* fixed a calculation error giving twice the torque that should be sent to the drive stage...
+
+
 ======= Changelog v0.5.1 =========
 
 * Introduced new Parameter to change pwm frequency (and therefore voltage which controls speed). Settable only in %appdata%/OpenSimwheel/OpenSimwheel Commander.ini

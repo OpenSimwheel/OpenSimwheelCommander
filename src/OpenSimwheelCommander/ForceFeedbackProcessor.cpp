@@ -9,10 +9,10 @@ FFBWheel::FFBWheel(QObject *parent) :
 
 qint32 FFBWheel::calculateTorque(TelemetryFeedback telemetry_feedback)
 {
-    qint32 calculated_torque = telemetry_feedback.torquePct * -32767;
+    qint32 calculated_torque = telemetry_feedback.torquePct * -16384;
 
-    if      (calculated_torque > 32767)     calculated_torque = 32767;
-    else if (calculated_torque < -32768)    calculated_torque = -32768;
+    if      (calculated_torque > 16383)     calculated_torque = 16383;
+    else if (calculated_torque < -16384)    calculated_torque = -16384;
 
     return calculated_torque;
 }
