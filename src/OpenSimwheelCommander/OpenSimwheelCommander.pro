@@ -84,11 +84,12 @@ OTHER_FILES += \
 RC_FILE = OpenSimwheelCommander.rc
 
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/Libraries/vJoy -lvJoyInterface
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/Libraries/vJoy -lvJoyInterface
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/Libraries/SimpleMotionV2 -lSimpleMotionV2_OpenSimwheel
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/Libraries/SimpleMotionV2 -lSimpleMotionV2_OpenSimwheel
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/Libraries/vJoy/ -lvJoyInterface
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/Libraries/vJoy/ -lvJoyInterface
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/Libraries/SimpleMotionV2/ -lSimpleMotionV2_OpenSimwheel
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/Libraries/SimpleMotionV2/ -lSimpleMotionV2_OpenSimwheel
 
 
 INCLUDEPATH += $$PWD/../TelemetryPlugins/plugins
