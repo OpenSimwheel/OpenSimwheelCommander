@@ -84,15 +84,32 @@ DEFINE_GUID(GUID_DEVINTERFACE_VJOY, 0x781EF630, 0x72B2, 0x11d2, 0xB8, 0x52, 0x00
 #define	SERIALNUMBER_STR	MAKEWIDE(STRINGIFY(VER_H_)) L"." MAKEWIDE(STRINGIFY(VER_M_)) L"."  MAKEWIDE(STRINGIFY(VER_L_))
 
 // Function codes;
-#define LOAD_POSITIONS	0x910
-#define GETATTRIB		0x911
+//#define LOAD_POSITIONS	0x910
+//#define GETATTRIB		0x911
+// #define GET_FFB_DATA	0x00222912	// METHOD_OUT_DIRECT + FILE_DEVICE_UNKNOWN	+ FILE_ANY_ACCESS
+//#define SET_FFB_STAT	0x913	 // METHOD_NEITHER
+//#define GET_FFB_STAT	0x916
 
-
+#define F_LOAD_POSITIONS	0x910
+#define F_GETATTRIB			0x911
+#define F_GET_FFB_DATA		0x912
+#define F_SET_FFB_STAT		0x913
+#define F_GET_FFB_STAT		0x916
+#define F_GET_DEV_INFO      0x917
 // IO Device Control codes;
-#define IOCTL_VJOY_GET_ATTRIB	CTL_CODE (FILE_DEVICE_UNKNOWN, GETATTRIB, METHOD_BUFFERED, FILE_WRITE_ACCESS)
+#define IOCTL_VJOY_GET_ATTRIB		CTL_CODE (FILE_DEVICE_UNKNOWN, GETATTRIB, METHOD_BUFFERED, FILE_WRITE_ACCESS)
+#define LOAD_POSITIONS	            CTL_CODE (FILE_DEVICE_UNKNOWN, F_LOAD_POSITIONS, METHOD_BUFFERED, FILE_WRITE_ACCESS)
+#define GET_FFB_DATA	            CTL_CODE (FILE_DEVICE_UNKNOWN, F_GET_FFB_DATA, METHOD_OUT_DIRECT, FILE_ANY_ACCESS)
+#define SET_FFB_STAT	            CTL_CODE (FILE_DEVICE_UNKNOWN, F_SET_FFB_STAT, METHOD_NEITHER, FILE_ANY_ACCESS)
+#define GET_FFB_STAT	            CTL_CODE (FILE_DEVICE_UNKNOWN, F_GET_FFB_STAT, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define GET_DEV_INFO			    CTL_CODE (FILE_DEVICE_UNKNOWN, F_GET_DEV_INFO, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 #ifndef __HIDPORT_H__
 // Copied from hidport.h
+#define IOCTL_HID_SET_FEATURE	0xB0191
+#define IOCTL_HID_WRITE_REPORT	0xB000F
+
+
 typedef struct _HID_DEVICE_ATTRIBUTES {
 
     ULONG           Size;
@@ -157,6 +174,42 @@ typedef struct _JOYSTICK_POSITION
 	DWORD	bHatsEx3;	// Lower 4 bits: HAT switch or 16-bit of continuous HAT switch
 } JOYSTICK_POSITION, *PJOYSTICK_POSITION;
 
+// Superset of JOYSTICK_POSITION
+// Extension of JOYSTICK_POSITION with Buttons 33-128 appended to the end of the structure.
+typedef struct _JOYSTICK_POSITION_V2
+{
+	/// JOYSTICK_POSITION
+	BYTE	bDevice;	// Index of device. 1-based.
+	LONG	wThrottle;
+	LONG	wRudder;
+	LONG	wAileron;
+	LONG	wAxisX;
+	LONG	wAxisY;
+	LONG	wAxisZ;
+	LONG	wAxisXRot;
+	LONG	wAxisYRot;
+	LONG	wAxisZRot;
+	LONG	wSlider;
+	LONG	wDial;
+	LONG	wWheel;
+	LONG	wAxisVX;
+	LONG	wAxisVY;
+	LONG	wAxisVZ;
+	LONG	wAxisVBRX;
+	LONG	wAxisVBRY;
+	LONG	wAxisVBRZ;
+	LONG	lButtons;	// 32 buttons: 0x00000001 means button1 is pressed, 0x80000000 -> button32 is pressed
+	DWORD	bHats;		// Lower 4 bits: HAT switch or 16-bit of continuous HAT switch
+	DWORD	bHatsEx1;	// Lower 4 bits: HAT switch or 16-bit of continuous HAT switch
+	DWORD	bHatsEx2;	// Lower 4 bits: HAT switch or 16-bit of continuous HAT switch
+	DWORD	bHatsEx3;	// Lower 4 bits: HAT switch or 16-bit of continuous HAT switch LONG lButtonsEx1; // Buttons 33-64
+	
+	/// JOYSTICK_POSITION_V2 Extenssion
+	LONG lButtonsEx1; // Buttons 33-64
+	LONG lButtonsEx2; // Buttons 65-96
+	LONG lButtonsEx3; // Buttons 97-128
+} JOYSTICK_POSITION_V2, *PJOYSTICK_POSITION_V2;
+
 
 // HID Descriptor definitions
 #define HID_USAGE_X		0x30
@@ -170,7 +223,23 @@ typedef struct _JOYSTICK_POSITION
 #define HID_USAGE_WHL	0x38
 #define HID_USAGE_POV	0x39
 
+// HID Descriptor definitions - FFB Report IDs
+#define HID_ID_STATE	0x02	// Usage PID State report
+#define HID_ID_EFFREP	0x01	// Usage Set Effect Report
+#define HID_ID_ENVREP	0x02	// Usage Set Envelope Report
+#define HID_ID_CONDREP	0x03	// Usage Set Condition Report
+#define HID_ID_PRIDREP	0x04	// Usage Set Periodic Report
+#define HID_ID_CONSTREP	0x05	// Usage Set Constant Force Report
+#define HID_ID_RAMPREP	0x06	// Usage Set Ramp Force Report
+#define HID_ID_CSTMREP	0x07	// Usage Custom Force Data Report
+#define HID_ID_SMPLREP	0x08	// Usage Download Force Sample
+#define HID_ID_EFOPREP	0x0A	// Usage Effect Operation Report
+#define HID_ID_BLKFRREP	0x0B	// Usage PID Block Free Report
+#define HID_ID_CTRLREP	0x0C	// Usage PID Device Control
+#define HID_ID_GAINREP	0x0D	// Usage Device Gain Report
+#define HID_ID_SETCREP	0x0E	// Usage Set Custom Force Report
+#define HID_ID_NEWEFREP	0x01	// Usage Create New Effect Report
+#define HID_ID_BLKLDREP	0x02	// Usage Block Load Report
+#define HID_ID_POOLREP	0x03	// Usage PID Pool Report
 
 #endif
-
-

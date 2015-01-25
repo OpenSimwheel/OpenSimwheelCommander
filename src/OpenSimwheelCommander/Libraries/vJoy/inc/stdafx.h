@@ -4,18 +4,15 @@
 //
 
 #pragma once
+#include "targetver.h"
 
-#include <stdio.h>
-#include <tchar.h>
-
+// #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+// Windows Header Files:
 #include <windows.h>
-#include <basetyps.h>
-#include <cfgmgr32.h>
-#include <Setupapi.h>
-#include <strsafe.h>
-#include <Newdev.h>
-#include <INITGUID.H>
+#include <winioctl.h>
+#include "public.h"
 
-
+#define WHILE(constant) \
+__pragma(warning(disable: 4127)) while(constant); __pragma(warning(default: 4127))
 
 // TODO: reference additional headers your program requires here
