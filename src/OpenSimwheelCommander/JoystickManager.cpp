@@ -4,13 +4,16 @@ JoystickManager::JoystickManager(QObject *parent) :
     QObject(parent)
 {
     qRegisterMetaType<JoystickDriverInfo>();
+    qRegisterMetaType<FFBInfo>();
     report = JOYSTICK_POSITION();
+    ffbInfo = FFBInfo();
 }
 
 JoystickManager::~JoystickManager()
 {
     RelinquishVJD(DeviceId);
 }
+
 
 bool JoystickManager::Aquire(unsigned int deviceId) {
     if (vJoyEnabled()) {
@@ -40,6 +43,15 @@ bool JoystickManager::Aquire(unsigned int deviceId) {
         deviceInfo.AxisMax = AxisMaxValue;
         deviceInfo.Status = GetHumanReadableStatus(GetVJDStatus(UINT(DeviceId)));
 
+
+        ffbInfo.Started = FfbStart(deviceId);
+
+        if (ffbInfo.Started) {
+            FfbRegisterGenCB(FFBCallback);
+        }
+
+
+
         emit Initialized(driverInfo, deviceInfo);
     }
 
@@ -47,6 +59,12 @@ bool JoystickManager::Aquire(unsigned int deviceId) {
 
 
     return isAquired;
+}
+
+
+
+void CALLBACK JoystickManager::FFBCallback(PVOID data) {
+    emit FFBUpdateReceived(ffbInfo);
 }
 
 void JoystickManager::UpdateRelativePosition(double posPct) {

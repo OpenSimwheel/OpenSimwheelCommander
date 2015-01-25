@@ -29,6 +29,14 @@ typedef struct
 
 Q_DECLARE_METATYPE(JoystickDeviceInfo)
 
+typedef struct
+{
+    bool Started;
+    qint32 ConstantForce;
+} FFBInfo;
+
+Q_DECLARE_METATYPE(FFBInfo)
+
 class JoystickManager : public QObject
 {
     Q_OBJECT
@@ -40,6 +48,8 @@ public:
     void UpdateRelativePosition(double posPct);
     void UpdatePosition(qint32 pos);
     void Center();
+
+    void CALLBACK FFBCallback(PVOID data);
 private:
     VjdStat DeviceStatus;
 
@@ -50,12 +60,17 @@ private:
 
     JOYSTICK_POSITION report;
 
+    FFBInfo ffbInfo;
+
     bool isAquired;
+
+
 
     QString GetHumanReadableStatus(VjdStat status);
 signals:
     void Initialized(JoystickDriverInfo driverInfo, JoystickDeviceInfo deviceInfo);
     void PositionUpdated(qint32 position);
+    void FFBUpdateReceived(FFBInfo ffbInfo);
 public slots:
 
 };

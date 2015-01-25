@@ -73,6 +73,7 @@ void MainWindow::InitializeDriveWorker()
     connect(driveWorker, SIGNAL(initialized()), this, SLOT(onWheelInitialized()));
     connect(driveWorker->Joystick, SIGNAL(Initialized(JoystickDriverInfo,JoystickDeviceInfo)), this, SLOT(onJoystickInitialized(JoystickDriverInfo,JoystickDeviceInfo)));
     connect(driveWorker->Joystick, SIGNAL(PositionUpdated(qint32)), this, SLOT(onJoystickPositionUpdated(qint32)));
+    connect(driveWorker->Joystick, SIGNAL(FFBUpdateReceived(FFBInfo)), this, SLOT(onFFBUpdateReceived(FFBInfo)));
     driveThread->start(QThread::TimeCriticalPriority);
 }
 
@@ -358,6 +359,11 @@ void MainWindow::onJoystickInitialized(JoystickDriverInfo driverInfo, JoystickDe
 
 void MainWindow::onJoystickPositionUpdated(qint32 pos) {
     ui->lbl_vjoy_axis_pos->setText(QString::number(pos));
+}
+
+void MainWindow::onFFBUpdateReceived(FFBInfo ffbInfo) {
+    ui->lbl_vjoy_ffb_started->setText(ffbInfo.Started ? "true" : "false");
+    ui->lbl_vjoy_ffb_constantForce->setText(QString::number(ffbInfo.ConstantForce));
 }
 
 void MainWindow::LoadPlugins() {
