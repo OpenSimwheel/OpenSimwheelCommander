@@ -15,13 +15,10 @@
 #ifndef SIMPLEMOTION_H
 #define SIMPLEMOTION_H
 
-#define BUILD_DLL
-
 #ifdef WIN32
 //dll specs
 #ifdef BUILD_DLL
     #define LIB __declspec(dllexport)
-    #define SMV2_DLLSPEC Q_DECL_EXPORT
 #else
 //    #define LIB __declspec(dllimport)
 #define LIB
@@ -65,7 +62,7 @@ typedef int SM_STATUS;
 typedef smuint8 smaddr;
 
 //comment out to disable, gives smaller & faster code
-//#define ENABLE_DEBUG_PRINTS
+#define ENABLE_DEBUG_PRINTS
 
 typedef enum _smVerbosityLevel {Off,Low,Mid,High,Trace} smVerbosityLevel;
 
@@ -73,7 +70,7 @@ typedef enum _smVerbosityLevel {Off,Low,Mid,High,Trace} smVerbosityLevel;
 
 //max number of simultaneously opened buses. change this and recompiple SMlib if
 //necessary (to increase channels or reduce to save memory)
-#define SM_MAX_BUSES 15
+//#define SM_MAX_BUSES 5
 ///////////////////////////////////////////////////////////////////////////////////////
 //FUNCTIONS////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +112,6 @@ LIB void resetCumulativeStatus( const smbus handle );
 LIB SM_STATUS smAppendCommandToQueue( smbus handle, smuint8 cmdid, smuint16 param  );
 LIB SM_STATUS smExecuteCommandQueue( const smbus bushandle, const smaddr targetaddress );
 LIB SM_STATUS smExecuteFastCommandQueue( const smbus bushandle, const smaddr targetaddress );
-
 LIB smuint16  smGetQueuedCommandReturnValue(  const smbus bushandle, smuint16 cmdnumber );
 
 LIB SM_STATUS smUploadCommandQueueToDeviceBuffer( const smbus bushandle, const smaddr targetaddress );
@@ -123,7 +119,6 @@ LIB SM_STATUS smBytesReceived( const smbus bushandle, smint32 *bytesinbuffer );
 
 LIB SM_STATUS smAppendSMCommandToQueue( smbus handle, int smpCmdType, smint32 paramvalue  );
 LIB SM_STATUS smGetQueuedSMCommandReturnValue(  const smbus bushandle, smint32 *retValue );
-LIB smint32 smGetQueuedSMCommandReturnValueBB(  const smbus bushandle);
 
 LIB SM_STATUS smAppendGetParamCommandToQueue( smbus handle, smint16 paramAddress );
 LIB SM_STATUS smGetQueuedGetParamReturnValue(  const smbus bushandle, smint32 *retValue  );
@@ -136,6 +131,7 @@ LIB SM_STATUS smRead1Parameter( const smbus handle, const smaddr nodeAddress, co
 LIB SM_STATUS smRead2Parameters( const smbus handle, const smaddr nodeAddress, const smint16 paramId1, smint32 *paramVal1,const smint16 paramId2, smint32 *paramVal2 );
 LIB SM_STATUS smRead3Parameters( const smbus handle, const smaddr nodeAddress, const smint16 paramId1, smint32 *paramVal1,const smint16 paramId2, smint32 *paramVal2 ,const smint16 paramId3, smint32 *paramVal3 );
 LIB SM_STATUS smSetParameter( const smbus handle, const smaddr nodeAddress, const smint16 paramId, smint32 paramVal );
+
 
 LIB SM_STATUS smGetBufferClock( const smbus handle, const smaddr targetaddr, smuint16 *clock );
 

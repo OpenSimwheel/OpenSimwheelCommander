@@ -172,7 +172,7 @@ typedef struct _FFB_EFF_ENVLP {
 
 #define FFB_DATA_READY	 WM_USER+31
 
-typedef void (CALLBACK *FfbGenCB)(PVOID);
+typedef void (CALLBACK *FfbGenCB)(PVOID, PVOID);
 #endif
 
 
@@ -231,7 +231,7 @@ VJOYINTERFACE_API BOOL		__cdecl	SetContPov(DWORD Value, UINT rID, UCHAR nPov);	/
 #pragma region FFB Function prototypes
 // Force Feedback (FFB) functions
 VJOYINTERFACE_API FFBEType	__cdecl	FfbGetEffect();	// Returns effect serial number if active, 0 if inactive
-VJOYINTERFACE_API VOID		__cdecl	FfbRegisterGenCB(FfbGenCB cb);
+VJOYINTERFACE_API VOID		__cdecl	FfbRegisterGenCB(FfbGenCB cb, PVOID data);
 VJOYINTERFACE_API BOOL		__cdecl	FfbStart(UINT rID);				  // Start the FFB queues of the specified vJoy Device.
 VJOYINTERFACE_API VOID		__cdecl	FfbStop(UINT rID);				  // Stop the FFB queues of the specified vJoy Device.
 
