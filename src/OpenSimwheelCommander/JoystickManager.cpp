@@ -47,24 +47,27 @@ bool JoystickManager::Aquire(unsigned int deviceId) {
         ffbInfo.Started = FfbStart(deviceId);
 
         if (ffbInfo.Started) {
-            FfbRegisterGenCB(FFBCallback);
+            FfbRegisterGenCB(JoystickManager::FFBCallback_Wrapper, this);
         }
-
 
 
         emit Initialized(driverInfo, deviceInfo);
     }
 
 
-
-
     return isAquired;
 }
 
 
-
-void CALLBACK JoystickManager::FFBCallback(PVOID data) {
+void JoystickManager::ProcessFFBData(PVOID ffbData) {
     emit FFBUpdateReceived(ffbInfo);
+}
+
+
+void CALLBACK JoystickManager::FFBCallback_Wrapper(PVOID data, PVOID objPtr) {
+    JoystickManager* mySelf = (JoystickManager*) objPtr;
+
+    mySelf->ProcessFFBData(data);
 }
 
 void JoystickManager::UpdateRelativePosition(double posPct) {

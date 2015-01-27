@@ -42,6 +42,7 @@ public slots:
 
     void onJoystickInitialized(JoystickDriverInfo driverInfo, JoystickDeviceInfo deviceInfo);
     void onJoystickPositionUpdated(qint32 pos);
+    void onFFBUpdateReceived(FFBInfo ffbInfo);
 protected:
     void closeEvent(QCloseEvent *);
 

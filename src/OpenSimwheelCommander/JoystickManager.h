@@ -37,6 +37,8 @@ typedef struct
 
 Q_DECLARE_METATYPE(FFBInfo)
 
+//extern "C" void CALLBACK FFBCallback(PVOID obj, PVOID data);
+
 class JoystickManager : public QObject
 {
     Q_OBJECT
@@ -48,8 +50,9 @@ public:
     void UpdateRelativePosition(double posPct);
     void UpdatePosition(qint32 pos);
     void Center();
+    void ProcessFFBData(PVOID ffbData);
 
-    void CALLBACK FFBCallback(PVOID data);
+    static void CALLBACK FFBCallback_Wrapper(PVOID obj, PVOID data);
 private:
     VjdStat DeviceStatus;
 
