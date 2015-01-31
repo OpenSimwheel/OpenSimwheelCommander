@@ -15,7 +15,16 @@ typedef struct
     smint32 debug2;
 } FEEDBACK_DATA;
 
-Q_DECLARE_METATYPE(FEEDBACK_DATA)
+Q_DECLARE_METATYPE(FEEDBACK_DATA);
+
+typedef struct
+{
+    bool Started;
+    qint32 ConstantForce;
+} FFBInfo;
+
+Q_DECLARE_METATYPE(FFBInfo);
+
 
 typedef struct
 {
@@ -32,7 +41,7 @@ typedef struct
     qint32 CenterOffset;
 } WHEEL_PARAMETER;
 
-Q_DECLARE_METATYPE(WHEEL_PARAMETER)
+Q_DECLARE_METATYPE(WHEEL_PARAMETER);
 
 typedef struct
 {
@@ -43,13 +52,13 @@ typedef struct
     qint32 PwmDutyCycle;
 } OSWDriveParameter;
 
-Q_DECLARE_METATYPE(OSWDriveParameter)
+Q_DECLARE_METATYPE(OSWDriveParameter);
 
 typedef struct
 {
     quint8 StartupFrequency;
 } OSWOptions;
 
-Q_DECLARE_METATYPE(OSWOptions)
+Q_DECLARE_METATYPE(OSWOptions);
 
 #endif // COMMONSTRUCTS_H

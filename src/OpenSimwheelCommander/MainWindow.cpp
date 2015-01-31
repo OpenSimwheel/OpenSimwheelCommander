@@ -24,10 +24,12 @@
 #include "TelemetryPlugins/TelemetryPluginInterface.h"
 #include "TelemetryPlugins/NullTelemetryPlugin.h"
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(SplashScreenManager *splashScreenManager, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    splashScreenManager(splashScreenManager)
 {
+
     ui->setupUi(this);
     MainWindow::hide();
 
@@ -36,15 +38,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     telemetry_feedback = TelemetryFeedback();
 
-    InitializeWheelParameter();
-    InitializeDriveParameter();
+    loadWheelParameters();
+    loadDriveParameters();
 
     options = OSWOptions();
     options.StartupFrequency = ApplicationSettings->value("Settings/StartupFrequency", 1).toInt();
-
-    InitializeDriveWorker();
-    InitializeTelemetryWorker();
-
 
     ui->menu_View->addAction(ui->debugInformation_dockWidget->toggleViewAction());
     ui->menu_View->addAction(ui->vjoy_dockWidget->toggleViewAction());
@@ -57,10 +55,13 @@ MainWindow::MainWindow(QWidget *parent) :
     nullTelemetryPlugin = new NullTelemetryPlugin();
 
     ui->settingsWidget->setLayout(new QGridLayout);
-    LoadPlugins();
+
+    loadPlugins();
+
+    this->enable();
 }
 
-void MainWindow::InitializeDriveWorker()
+void MainWindow::startDriveWorker()
 {
     driveWorker = new DriveWorker(&driveParameter, &WheelParameter, &telemetry_feedback, &options);
     driveThread = new QThread;
@@ -69,15 +70,21 @@ void MainWindow::InitializeDriveWorker()
     connect(driveWorker, SIGNAL(feedback_received(FEEDBACK_DATA)), this, SLOT(updateFeedbackInfo(FEEDBACK_DATA)));
     connect(driveThread, SIGNAL(finished()), driveWorker, SLOT(deleteLater()));
     connect(driveThread, SIGNAL(finished()), driveThread, SLOT(deleteLater()));
-    connect(driveWorker, SIGNAL(initializing()), this, SLOT(onWheelInitializing()));
-    connect(driveWorker, SIGNAL(initialized()), this, SLOT(onWheelInitialized()));
     connect(driveWorker->Joystick, SIGNAL(Initialized(JoystickDriverInfo,JoystickDeviceInfo)), this, SLOT(onJoystickInitialized(JoystickDriverInfo,JoystickDeviceInfo)));
     connect(driveWorker->Joystick, SIGNAL(PositionUpdated(qint32)), this, SLOT(onJoystickPositionUpdated(qint32)));
-    connect(driveWorker->Joystick, SIGNAL(FFBUpdateReceived(FFBInfo)), this, SLOT(onFFBUpdateReceived(FFBInfo)));
+//    connect(driveWorker->Joystick, SIGNAL(FFBUpdateReceived(FFBInfo)), this, SLOT(onFFBUpdateReceived(FFBInfo)));
     driveThread->start(QThread::TimeCriticalPriority);
+
+    driveWorker->initializeWheel();
 }
 
-void MainWindow::InitializeTelemetryWorker()
+void MainWindow::stopDriveWorker()
+{
+
+}
+
+
+void MainWindow::startTelemetryWorker()
 {
     telemetryWorker = new TelemetryWorker;
     telemetryThread = new QThread;
@@ -90,7 +97,7 @@ void MainWindow::InitializeTelemetryWorker()
     telemetryThread->start(QThread::HighPriority);
 }
 
-void MainWindow::InitializeDriveParameter()
+void MainWindow::loadDriveParameters()
 {
     driveParameter = OSWDriveParameter();
     driveParameter.PwmDutyCycle = ApplicationSettings->value("DriveStage/PwmDutyCycle", "3800").toInt();
@@ -100,7 +107,7 @@ void MainWindow::InitializeDriveParameter()
     driveParameter.UseFastCommunication = ApplicationSettings->value("DriveStage/UseFastCommunication", false).toBool();
 }
 
-void MainWindow::InitializeWheelParameter()
+void MainWindow::loadWheelParameters()
 {
     WheelParameter = WHEEL_PARAMETER();
     WheelParameter.CenterSpringStrength = ApplicationSettings->value("WheelEffects/CenterSpringStrength", 0).toInt();
@@ -269,55 +276,15 @@ void MainWindow::on_action_Joystick_Settings_triggered()
     dialog->show();
 }
 
-void MainWindow::onWheelInitializing()
-{
-    this->setEnabled(false);
-    splash->showMessage("Initializing wheel...", Qt::AlignBottom | Qt::AlignRight);
 
-    splash->showMessage(QString("Trying to connect to servo drive on SerialPort %1 & DeviceAddress %2...").arg(driveParameter.ComPort,QString::number(driveParameter.DeviceAddress)), Qt::AlignBottom | Qt::AlignRight);
-    bool success = driveWorker->SmCommunicator->Connect(driveParameter.ComPort, driveParameter.DeviceAddress, driveParameter.CommunicationTimeoutMs);
-
-    if (success == false) {
-        QMessageBox::warning(this,
-                             "Connetion to drive stage failed",
-                             QString("Could not connect to servo drive on SerialPort %1 & DeviceAddress %2. Please check your settings!")
-                             .arg(driveParameter.ComPort, QString::number(driveParameter.DeviceAddress)));
-        return;
-    }
-
-    splash->showMessage("Waiting for servo drive to be ready...", Qt::AlignBottom | Qt::AlignRight);
-    driveWorker->SmCommunicator->WaitForDriveReady(); //waiting for drive to finish initialization
-    driveWorker->SmCommunicator->ClearFaults();
-    splash->showMessage("Enabling servo drive...", Qt::AlignBottom | Qt::AlignRight);
-    driveWorker->SmCommunicator->EnableDrive();
-
-    splash->showMessage("Calibrating wheel and moving to center...", Qt::AlignBottom | Qt::AlignRight);
-    driveWorker->SmCommunicator->AutoCalibrate(options.StartupFrequency, WheelParameter.CenterOffsetEnabled ?  WheelParameter.CenterOffset : 0);
-
-    splash->showMessage("Applying settings...", Qt::AlignBottom | Qt::AlignRight);
-    driveWorker->SmCommunicator->SetParameter(SMP_OSW_VELOCITY_SAMPLES, 10);
-    driveWorker->SmCommunicator->SetTorqueBandwithLimit(5);
-    driveWorker->SmCommunicator->SetPwmDutyCycle(driveParameter.PwmDutyCycle);
-    driveWorker->UpdateWheelParameter();
-
-    splash->showMessage("Starting drive worker...", Qt::AlignBottom | Qt::AlignRight);
-    driveWorker->Start();
-
-    splash->showMessage("Ready!", Qt::AlignBottom | Qt::AlignRight);
-}
-
-void MainWindow::onWheelInitialized()
+void MainWindow::enable()
 {
     this->setEnabled(true);
     RestoreLayout();
-    this->splash->close();
+    this->splashScreenManager->closeSplashScreen();
     this->show();
 }
 
-void MainWindow::setSplashScreen(IndestructableSplashScreen* splash)
-{
-    this->splash = splash;
-}
 
 void MainWindow::on_action_Restart_triggered()
 {
@@ -366,7 +333,7 @@ void MainWindow::onFFBUpdateReceived(FFBInfo ffbInfo) {
     ui->lbl_vjoy_ffb_constantForce->setText(QString::number(ffbInfo.ConstantForce));
 }
 
-void MainWindow::LoadPlugins() {
+void MainWindow::loadPlugins() {
     pluginsDir = QApplication::applicationDirPath();
     pluginsDir.cd("plugins");
 
@@ -403,7 +370,7 @@ void MainWindow::LoadPlugins() {
     }
 }
 
-void MainWindow::ActivatePlugin(QString pluginPath) {
+void MainWindow::activatePlugin(QString pluginPath) {
     telemetryWorker->DeleteCurrentPlugin();
 
 
@@ -452,7 +419,7 @@ void MainWindow::on_comboBox_plugins_currentIndexChanged(int index)
 //    telemetryWorker->DeleteCurrentPlugin();
 
     if (index <= 0) {
-        telemetryWorker->SetPlugin(nullTelemetryPlugin);
+//        telemetryWorker->SetPlugin(nullTelemetryPlugin);
 
          ApplicationSettings->setValue("Program/LastActivePlugin", "");
         return;
@@ -461,5 +428,16 @@ void MainWindow::on_comboBox_plugins_currentIndexChanged(int index)
 
     QString pluginPath = ui->comboBox_plugins->itemData(index).toString();
 
-    ActivatePlugin(pluginPath);
+    activatePlugin(pluginPath);
+}
+
+void MainWindow::on_btnStartDriveWorker_clicked()
+{
+    this->startDriveWorker();
+    this->startTelemetryWorker();
+}
+
+void MainWindow::on_btnStopDriveWorker_clicked()
+{
+    this->stopDriveWorker();
 }

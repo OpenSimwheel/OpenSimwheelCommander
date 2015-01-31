@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include "SplashScreenManager.h"
 #include "Splash/IndestructableSplashScreen.h"
 #include "Version.h"
 #include <QtPlugin>
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
     do {
         QApplication* app;
         MainWindow* mainWindow;
-
+        SplashScreenManager* splashScreenManager = new SplashScreenManager();
 
         app = new QApplication (argc, argv);
 
@@ -25,15 +26,11 @@ int main(int argc, char *argv[])
         QCoreApplication::setApplicationName("OpenSimwheel Commander");
 
         QPixmap splashImg(":/splash/logo-full-light.png");
-        IndestructableSplashScreen *splash = new IndestructableSplashScreen(splashImg);
-
-        splash->show();
-
-        splash->showMessage("Starting OpenSimwheel Commander...", Qt::AlignRight | Qt::AlignBaseline);
+        splashScreenManager->createSplashScreen(splashImg);
 
 
-        mainWindow = new MainWindow();
-        mainWindow->setSplashScreen(splash);
+        splashScreenManager->showMessage("Starting OpenSimwheel Commander...");
+        mainWindow = new MainWindow(splashScreenManager);
 
         exit_code = app->exec();
 

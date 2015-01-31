@@ -40,7 +40,7 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="0" colspan="2">
+    <item row="1" column="0" colspan="2">
      <widget class="QGroupBox" name="groupBox_4">
       <property name="title">
        <string>Plugin</string>
@@ -219,7 +219,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0">
+    <item row="2" column="0">
      <widget class="QDockWidget" name="debugInformation_dockWidget">
       <property name="floating">
        <bool>true</bool>
@@ -419,7 +419,7 @@
       </widget>
      </widget>
     </item>
-    <item row="1" column="1">
+    <item row="2" column="1">
      <widget class="QDockWidget" name="vjoy_dockWidget">
       <property name="floating">
        <bool>true</bool>
@@ -653,6 +653,20 @@
         </layout>
        </widget>
       </widget>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QPushButton" name="btnStartDriveWorker">
+      <property name="text">
+       <string>Start Drive Worker</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QPushButton" name="btnStopDriveWorker">
+      <property name="text">
+       <string>Stop Drive Worker</string>
+      </property>
      </widget>
     </item>
    </layout>

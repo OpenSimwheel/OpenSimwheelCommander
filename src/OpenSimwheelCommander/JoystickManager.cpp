@@ -4,9 +4,9 @@ JoystickManager::JoystickManager(QObject *parent) :
     QObject(parent)
 {
     qRegisterMetaType<JoystickDriverInfo>();
-    qRegisterMetaType<FFBInfo>();
     report = JOYSTICK_POSITION();
-    ffbInfo = FFBInfo();
+
+    ffbReceptor = new ForceFeedbackReceptor();
 }
 
 JoystickManager::~JoystickManager()
@@ -44,13 +44,6 @@ bool JoystickManager::Aquire(unsigned int deviceId) {
         deviceInfo.Status = GetHumanReadableStatus(GetVJDStatus(UINT(DeviceId)));
 
 
-        ffbInfo.Started = FfbStart(deviceId);
-
-        if (ffbInfo.Started) {
-            FfbRegisterGenCB(JoystickManager::FFBCallback_Wrapper, this);
-        }
-
-
         emit Initialized(driverInfo, deviceInfo);
     }
 
@@ -59,16 +52,17 @@ bool JoystickManager::Aquire(unsigned int deviceId) {
 }
 
 
-void JoystickManager::ProcessFFBData(PVOID ffbData) {
-    emit FFBUpdateReceived(ffbInfo);
+void JoystickManager::StartFFB() {
+    ffbReceptor->SetDeviceId(this->DeviceId);
+    ffbReceptor->Start();
+
+//    connect(ffbReceptor, SIGNAL(FFBUpdateReceived(FFBInfo))), this, SLOT(onForceFeedbackUpdateReceived(FFBInfo));
 }
 
+void JoystickManager::onForceFeedbackUpdateReceived(FFBInfo ffbInfo) {
 
-void CALLBACK JoystickManager::FFBCallback_Wrapper(PVOID data, PVOID objPtr) {
-    JoystickManager* mySelf = (JoystickManager*) objPtr;
-
-    mySelf->ProcessFFBData(data);
 }
+
 
 void JoystickManager::UpdateRelativePosition(double posPct) {
     if (!isAquired) return;

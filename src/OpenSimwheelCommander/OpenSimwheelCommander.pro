@@ -36,7 +36,9 @@ SOURCES += main.cpp\
     SimpleMotionCommunicator.cpp \
     JoystickManager.cpp \
     Dialogs/PluginDialog.cpp \
-    Dialogs/OptionsDialog.cpp
+    Dialogs/OptionsDialog.cpp \
+    ForceFeedbackReceptor.cpp \
+    SplashScreenManager.cpp
 
 HEADERS  += \
     CommonStructs.h \
@@ -54,7 +56,10 @@ HEADERS  += \
     TelemetryPlugins/TelemetryPluginInterface.h \
     Dialogs/PluginDialog.h \
     Dialogs/OptionsDialog.h \
-    TelemetryPlugins/NullTelemetryPlugin.h
+    TelemetryPlugins/NullTelemetryPlugin.h \
+    ForceFeedbackReceptor.h \
+    vjoyincludes.h \
+    SplashScreenManager.h
 
 FORMS    += \
     MainWindow.ui \

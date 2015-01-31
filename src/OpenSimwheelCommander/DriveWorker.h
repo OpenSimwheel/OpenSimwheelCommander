@@ -18,12 +18,12 @@ class DriveWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit DriveWorker(OSWDriveParameter* DriveParameter, WHEEL_PARAMETER* WheelParameter, TelemetryFeedback *telemetryFeedback, OSWOptions* options, QObject *parent = 0);
+    explicit DriveWorker(OSWDriveParameter* driveParameter, WHEEL_PARAMETER* WheelParameter, TelemetryFeedback *telemetryFeedback, OSWOptions* options, QObject *parent = 0);
     ~DriveWorker();
 
     WHEEL_PARAMETER* WheelParameter;
     TelemetryFeedback* TelemetryFeedbackData;
-    OSWDriveParameter* DriveParameter;
+    OSWDriveParameter* driveParameter;
     OSWOptions* Options;
 
     JoystickManager* Joystick;
@@ -35,6 +35,7 @@ public:
     void Pause() { run = false; }
     void Start() { run = true; }
 
+    void initializeWheel();
 private:
     smint32 pos;
 

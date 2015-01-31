@@ -9,10 +9,11 @@
 #include <QStandardPaths>
 #include <QCoreApplication>
 #include <QProgressDialog>
-#include "Splash/IndestructableSplashScreen.h"
-#include "JoystickManager.h"
 
 #include "TelemetryPlugins/NullTelemetryPlugin.h"
+#include "JoystickManager.h"
+
+#include "SplashScreenManager.h"
 
 #include <QStringList>
 #include <QDir>
@@ -26,8 +27,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(SplashScreenManager *splashScreenManager, QWidget *parent = 0);
     QSettings* ApplicationSettings;
+
+
 
 
     ~MainWindow();
@@ -36,9 +39,6 @@ public slots:
     void updateFeedbackInfo(FEEDBACK_DATA data);
     void updateTelemetryFeedbackInfo(TelemetryFeedback feedback);
 
-    void onWheelInitializing();
-    void onWheelInitialized();
-    void setSplashScreen(IndestructableSplashScreen* splash);
 
     void onJoystickInitialized(JoystickDriverInfo driverInfo, JoystickDeviceInfo deviceInfo);
     void onJoystickPositionUpdated(qint32 pos);
@@ -65,6 +65,10 @@ private slots:
 
     void on_comboBox_plugins_currentIndexChanged(int index);
 
+    void on_btnStartDriveWorker_clicked();
+
+    void on_btnStopDriveWorker_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -87,20 +91,26 @@ private:
     QStringList pluginFileNames;
     QDir pluginsDir;
 
+    SplashScreenManager* splashScreenManager;
+
     void SaveLayout();
     void RestoreLayout();
 
-    void LoadPlugins();
-    void ActivatePlugin(QString pluginPath);
+    void loadPlugins();
+    void activatePlugin(QString pluginPath);
 
 
-    void InitializeDriveParameter();
-    void InitializeWheelParameter();
+    void loadDriveParameters();
+    void loadWheelParameters();
 
-    void InitializeDriveWorker();
-    void InitializeTelemetryWorker();
+    void startDriveWorker();
+    void stopDriveWorker();
 
-    IndestructableSplashScreen *splash;
+    void startTelemetryWorker();
+
+    void enable();
+
+
 
     NullTelemetryPlugin* nullTelemetryPlugin;
 signals:

@@ -32,7 +32,7 @@ DriveWorker::DriveWorker(OSWDriveParameter* driveParameter,
     this->SmCommunicator = new SimpleMotionCommunicator();
     this->Joystick = new JoystickManager();
 
-    this->DriveParameter = driveParameter;
+    this->driveParameter = driveParameter;
 
     pos = 0;
     run = false;
@@ -54,10 +54,12 @@ void DriveWorker::process()
 {
 
     qint64 LOOP_TIMEOUT = 4000; // In µs
-    OSWDriveParameter driveParameter = *DriveParameter;
+    OSWDriveParameter driveParameter = *this->driveParameter;
     if (driveParameter.UseFastCommunication) {
         LOOP_TIMEOUT = 2000; // In µs
     }
+
+
 
 
     qint64 lastLoop = 0, frameStartCounter = 0;
@@ -159,3 +161,29 @@ void DriveWorker::UpdateWheelParameter()
 }
 
 
+void DriveWorker::initializeWheel()
+{
+    bool success = SmCommunicator->Connect(driveParameter->ComPort, driveParameter->DeviceAddress, driveParameter->CommunicationTimeoutMs);
+
+//    if (success == false) {
+//        QMessageBox::warning(this,
+//                             "Connetion to drive stage failed",
+//                             QString("Could not connect to servo drive on SerialPort %1 & DeviceAddress %2. Please check your settings!")
+//                             .arg(driveParameter.ComPort, QString::number(driveParameter.DeviceAddress)));
+//        return;
+//    }
+
+    SmCommunicator->WaitForDriveReady(); //waiting for drive to finish initialization
+    SmCommunicator->ClearFaults();
+
+    SmCommunicator->EnableDrive();
+
+    SmCommunicator->AutoCalibrate(Options->StartupFrequency, WheelParameter->CenterOffsetEnabled ?  WheelParameter->CenterOffset : 0);
+
+    SmCommunicator->SetParameter(SMP_OSW_VELOCITY_SAMPLES, 10);
+    SmCommunicator->SetTorqueBandwithLimit(5);
+    SmCommunicator->SetPwmDutyCycle(driveParameter->PwmDutyCycle);
+    UpdateWheelParameter();
+
+    Start();
+}

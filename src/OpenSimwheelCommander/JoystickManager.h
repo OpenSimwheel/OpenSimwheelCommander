@@ -3,11 +3,9 @@
 
 #include <QObject>
 
-//#include <libs/vJoySDK/src/stdafx.h>
 
-#include "Libraries/vJoy/inc/stdafx.h"
-#include "Libraries/vJoy/inc/public.h"
-#include "Libraries/vJoy/inc/vjoyinterface.h"
+#include <vjoyincludes.h>
+#include <ForceFeedbackReceptor.h>
 
 typedef struct
 {
@@ -29,15 +27,6 @@ typedef struct
 
 Q_DECLARE_METATYPE(JoystickDeviceInfo)
 
-typedef struct
-{
-    bool Started;
-    qint32 ConstantForce;
-} FFBInfo;
-
-Q_DECLARE_METATYPE(FFBInfo)
-
-//extern "C" void CALLBACK FFBCallback(PVOID obj, PVOID data);
 
 class JoystickManager : public QObject
 {
@@ -51,8 +40,9 @@ public:
     void UpdatePosition(qint32 pos);
     void Center();
     void ProcessFFBData(PVOID ffbData);
+    void StartFFB();
+    FFBInfo GetForceFeedbackInfo();
 
-    static void CALLBACK FFBCallback_Wrapper(PVOID obj, PVOID data);
 private:
     VjdStat DeviceStatus;
 
@@ -63,19 +53,17 @@ private:
 
     JOYSTICK_POSITION report;
 
-    FFBInfo ffbInfo;
-
     bool isAquired;
 
+    ForceFeedbackReceptor* ffbReceptor;
 
 
     QString GetHumanReadableStatus(VjdStat status);
 signals:
     void Initialized(JoystickDriverInfo driverInfo, JoystickDeviceInfo deviceInfo);
     void PositionUpdated(qint32 position);
-    void FFBUpdateReceived(FFBInfo ffbInfo);
 public slots:
-
+    void onForceFeedbackUpdateReceived(FFBInfo ffbInfo);
 };
 
 #endif // JOYSTICKMANAGER_H
